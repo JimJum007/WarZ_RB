@@ -1,10 +1,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- เนเธกเนเนเธซเนเธเธนเนเน€เธฅเนเธเน€เธเธดเธ”เธ—เธฑเธเธ—เธตเน€เธกเธทเนเธญเน€เธเนเธฒเน€เธเธก
+-- ไม่ให้ผู้เล่นเกิดทันทีเมื่อเข้าเกม
 Players.CharacterAutoLoads = false
 
--- เธชเธฃเนเธฒเธเธซเธฃเธทเธญเธ”เธถเธ RemoteEvent เธญเธขเนเธฒเธเธเธฅเธญเธ”เธ เธฑเธข
+-- สร้างหรือดึง RemoteEvent อย่างปลอดภัย
 local function getRemoteEvent(name)
 	local event = ReplicatedStorage:FindFirstChild(name)
 
@@ -20,16 +20,29 @@ end
 local playEvent = getRemoteEvent("PlayGame")
 local startGameplayEvent = getRemoteEvent("StartGameplay")
 
--- เธฃเธฑเธเธเธณเธชเธฑเนเธเธเธฒเธเธเธธเนเธก PLAY
+-- รับคำสั่งจากปุ่ม PLAY
 playEvent.OnServerEvent:Connect(function(player)
-	-- เธ–เนเธฒเธขเธฑเธเนเธกเนเธกเธตเธ•เธฑเธงเธฅเธฐเธเธฃ เนเธซเน Spawn
+	-- ถ้ายังไม่มีตัวละคร ให้ Spawn
 	if not player.Character then
 		player:LoadCharacter()
 	end
 
-	-- เธฃเธญเนเธซเนเธ•เธฑเธงเธฅเธฐเธเธฃเน€เธเธดเธ”เธเธฃเธดเธเธเนเธญเธ เธเนเธญเธขเนเธซเน Client เธฅเนเธญเธเน€เธกเธฒเธชเน/เนเธชเธ”เธเน€เธเนเธฒ
+	-- รอให้ตัวละครมาตรฐานถูกติดตั้งเสร็จก่อนส่งสัญญาณเริ่มเกม
 	local character = player.Character or player.CharacterAdded:Wait()
-	character:WaitForChild("HumanoidRootPart", 5)
+	local deadline = os.clock() + 10
+	while character and os.clock() < deadline do
+		local rootPart = character:FindFirstChild("HumanoidRootPart")
+		if rootPart and character:GetAttribute("ClassicAvatar") == true then
+			break
+		end
+		task.wait(0.1)
+		character = player.Character
+	end
+
+	if not character or not character:FindFirstChild("HumanoidRootPart") then
+		warn("[SpawnManager] Character was not ready for " .. player.Name)
+		return
+	end
 
 	startGameplayEvent:FireClient(player)
 end)

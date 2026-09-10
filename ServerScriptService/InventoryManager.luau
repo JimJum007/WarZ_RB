@@ -1,22 +1,22 @@
 --------------------------------------------------------------
 -- InventoryManager.lua  (Script)
--- เธงเธฒเธเนเธ: ServerScriptService
+-- วางใน: ServerScriptService
 --
--- เธเธฑเธ”เธเธฒเธฃ Inventory เธเธฑเนเธ Server (source of truth)
--- Client เธชเนเธ request โ’ Server เธ•เธฃเธงเธเธชเธญเธ + เธญเธฑเธเน€เธ”เธ• โ’ sync เธเธฅเธฑเธ Client
+-- จัดการ Inventory ฝั่ง Server (source of truth)
+-- Client ส่ง request  Server ตรวจสอบ + อัพเดต  sync กลับ Client
 --------------------------------------------------------------
 
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  เนเธซเธฅเธ” ItemDatabase
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+--  โหลด ItemDatabase
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 local ItemDatabase = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  REMOTE EVENTS
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 local function createRemote(name, className)
 	local r = ReplicatedStorage:FindFirstChild(name)
 	if not r then
@@ -27,23 +27,32 @@ local function createRemote(name, className)
 	return r
 end
 
-local PickupItemEvent    = createRemote("PickupItem")       -- Client โ’ Server
-local DropItemEvent      = createRemote("DropItem")         -- Client โ’ Server
-local EquipItemEvent     = createRemote("EquipItem")        -- Client โ’ Server
-local UnequipItemEvent   = createRemote("UnequipItem")      -- Client โ’ Server
-local SwapSlotsEvent     = createRemote("SwapSlots")        -- Client โ’ Server
-local SwitchWeaponEvent  = createRemote("SwitchWeaponSlot") -- Client โ’ Server
-local SyncInventoryEvent = createRemote("SyncInventory")    -- Server โ’ Client
-local EquipUpdateEvent   = createRemote("EquipUpdate")      -- Server โ’ Client
+local PickupItemEvent    = createRemote("PickupItem")       -- Client  Server
+local DropItemEvent      = createRemote("DropItem")         -- Client  Server
+local EquipItemEvent     = createRemote("EquipItem")        -- Client  Server
+local UnequipItemEvent   = createRemote("UnequipItem")      -- Client  Server
+local SwapSlotsEvent     = createRemote("SwapSlots")        -- Client  Server
+local SwitchWeaponEvent  = createRemote("SwitchWeaponSlot") -- Client  Server
+local SyncInventoryEvent = createRemote("SyncInventory")    -- Server  Client
+local EquipUpdateEvent   = createRemote("EquipUpdate")      -- Server  Client
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- BindableEvent สำหรับสั่ง ItemSpawner สร้างของกลางแมพ
+local SpawnDroppedItem = ReplicatedStorage:FindFirstChild("SpawnDroppedItem")
+if not SpawnDroppedItem then
+	SpawnDroppedItem = Instance.new("BindableEvent")
+	SpawnDroppedItem.Name   = "SpawnDroppedItem"
+	SpawnDroppedItem.Parent = ReplicatedStorage
+end
+
+
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  CONSTANTS
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-local GRID_SIZE = 20  -- 5ร—4 = 20 slots
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+local GRID_SIZE = 20  -- 5?4 = 20 slots
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  PLAYER INVENTORIES
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 local inventories = {}  -- [player] = { grid = {...}, equipment = {...} }
 
 local function createInventory()
@@ -55,10 +64,10 @@ local function createInventory()
 			Armor     = nil,
 			Headgear  = nil,
 		},
-		activeWeaponSlot = nil,  -- "Primary" เธซเธฃเธทเธญ "Secondary"
+		activeWeaponSlot = nil,  -- "Primary" หรือ "Secondary"
 	}
 
-	-- เธชเธฃเนเธฒเธ grid เธงเนเธฒเธ 20 slots
+	-- สร้าง grid ว่าง 20 slots
 	for i = 1, GRID_SIZE do
 		inv.grid[i] = nil
 	end
@@ -66,21 +75,21 @@ local function createInventory()
 	return inv
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  HELPER FUNCTIONS
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 
--- เธซเธฒ slot เธงเนเธฒเธเนเธ grid
+-- หา slot ว่างใน grid
 local function findEmptySlot(inv)
 	for i = 1, GRID_SIZE do
 		if inv.grid[i] == nil then
 			return i
 		end
 	end
-	return nil  -- เน€เธ•เนเธก
+	return nil  -- เต็ม
 end
 
--- เธซเธฒ slot เธ—เธตเนเธกเธต item เน€เธ”เธตเธขเธงเธเธฑเธเนเธฅเธฐเธขเธฑเธ stack เนเธ”เน
+-- หา slot ที่มี item เดียวกันและยัง stack ได้
 local function findStackableSlot(inv, itemId)
 	local itemData = ItemDatabase.GetItem(itemId)
 	if not itemData or not itemData.StackSize then return nil end
@@ -96,18 +105,19 @@ local function findStackableSlot(inv, itemId)
 	return nil
 end
 
--- Sync inventory เธ—เธฑเนเธเธซเธกเธ”เนเธ Client
+-- Sync inventory ทั้งหมดไป Client
 local function syncInventory(player)
 	local inv = inventories[player]
 	if not inv then return end
 
-	-- เธชเนเธ grid + equipment เนเธ Client
+	-- ส่ง grid + equipment ไป Client
 	local gridData = {}
 	for i = 1, GRID_SIZE do
 		if inv.grid[i] then
 			gridData[i] = {
 				itemId   = inv.grid[i].itemId,
 				quantity = inv.grid[i].quantity,
+				ammo     = inv.grid[i].ammo,
 			}
 		end
 	end
@@ -129,12 +139,12 @@ local function syncInventory(player)
 	})
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  PUBLIC API (เนเธเนเนเธ”เธข script เธญเธทเนเธ)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+--  PUBLIC API (ใช้โดย script อื่น)
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 
--- เน€เธเธดเนเธกเนเธญเน€เธ—เธกเน€เธเนเธฒ Inventory
-function InventoryManager_AddItem(player, itemId, quantity)
+-- เพิ่มไอเทมเข้า Inventory
+function InventoryManager_AddItem(player, itemId, quantity, ammo)
 	local inv = inventories[player]
 	if not inv then return false, "No inventory" end
 
@@ -143,7 +153,7 @@ function InventoryManager_AddItem(player, itemId, quantity)
 
 	quantity = quantity or 1
 
-	-- เธ–เนเธฒ stack เนเธ”เน โ’ เธซเธฒ slot เธ—เธตเนเธกเธตเธญเธขเธนเนเนเธฅเนเธง
+	-- ถ้า stack ได้  หา slot ที่มีอยู่แล้ว
 	if ItemDatabase.IsStackable(itemId) then
 		while quantity > 0 do
 			local stackSlot = findStackableSlot(inv, itemId)
@@ -154,7 +164,7 @@ function InventoryManager_AddItem(player, itemId, quantity)
 				slot.quantity = slot.quantity + toAdd
 				quantity = quantity - toAdd
 			else
-				-- เธซเธฒ slot เธงเนเธฒเธ
+				-- หา slot ว่าง
 				local emptySlot = findEmptySlot(inv)
 				if not emptySlot then
 					syncInventory(player)
@@ -166,20 +176,20 @@ function InventoryManager_AddItem(player, itemId, quantity)
 			end
 		end
 	else
-		-- เนเธกเน stack โ’ 1 item เธ•เนเธญ 1 slot
+		-- ไม่ stack  1 item ต่อ 1 slot
 		local emptySlot = findEmptySlot(inv)
 		if not emptySlot then
 			syncInventory(player)
 			return false, "Inventory full"
 		end
-		inv.grid[emptySlot] = { itemId = itemId, quantity = 1 }
+		inv.grid[emptySlot] = { itemId = itemId, quantity = 1, ammo = ammo or 0 }
 	end
 
 	syncInventory(player)
 	return true
 end
 
--- เธฅเธเนเธญเน€เธ—เธกเธเธฒเธ grid slot
+-- ลบไอเทมจาก grid slot
 function InventoryManager_RemoveFromSlot(player, slotIndex, quantity)
 	local inv = inventories[player]
 	if not inv then return false end
@@ -198,7 +208,7 @@ function InventoryManager_RemoveFromSlot(player, slotIndex, quantity)
 	return true
 end
 
--- Equip item เธเธฒเธ grid โ’ equipment slot
+-- Equip item จาก grid  equipment slot
 function InventoryManager_EquipItem(player, gridSlot)
 	local inv = inventories[player]
 	if not inv then return false end
@@ -207,31 +217,32 @@ function InventoryManager_EquipItem(player, gridSlot)
 	if not gridItem then return false end
 
 	local equipSlot = ItemDatabase.GetEquipSlot(gridItem.itemId)
-	if not equipSlot then return false end  -- เนเธกเนเนเธเน equipment
+	if not equipSlot then return false end  -- ไม่ใช่ equipment
 
 	local itemData = ItemDatabase.GetItem(gridItem.itemId)
 
-	-- เธ–เนเธฒเธกเธตเธเธญเธเน€เธ”เธดเธกเธญเธขเธนเน โ’ เธขเนเธฒเธขเธเธฅเธฑเธ grid
+	-- ถ้ามีของเดิมอยู่  ย้ายกลับ grid
 	local oldEquip = inv.equipment[equipSlot]
 	if oldEquip then
-		local emptySlot = findEmptySlot(inv)
-		-- เนเธเน slot เน€เธ”เธดเธกเธ—เธตเนเน€เธเธดเนเธเธ–เธญเธ”เธญเธญเธ
-		inv.grid[gridSlot] = { itemId = oldEquip.itemId, quantity = 1 }
+		-- คืนของเดิมลง slot เดิม พร้อมกระสุนที่ค้างในแม็ก
+		inv.grid[gridSlot] = {
+			itemId   = oldEquip.itemId,
+			quantity = 1,
+			ammo     = oldEquip.ammo or 0,
+		}
 	else
 		inv.grid[gridSlot] = nil
 	end
 
-	-- เนเธชเน equipment เนเธซเธกเน
+	-- ใส่ equipment ใหม่ (กระสุนติดมากับไอเทม ไม่เติมฟรี)
 	local newEquip = { itemId = gridItem.itemId }
-
-	-- เธ–เนเธฒเน€เธเนเธเธเธทเธ โ’ เนเธชเนเธเธฃเธฐเธชเธธเธเน€เธ•เนเธก magazine
 	if ItemDatabase.IsGun(gridItem.itemId) then
-		newEquip.ammo = itemData.MagazineSize or 0
+		newEquip.ammo = gridItem.ammo or 0
 	end
 
 	inv.equipment[equipSlot] = newEquip
 
-	-- เธ–เนเธฒ equip เธญเธฒเธงเธธเธ โ’ เธ•เธฑเนเธเน€เธเนเธ active weapon
+	-- ถ้า equip อาวุธ  ตั้งเป็น active weapon
 	if equipSlot == "Primary" or equipSlot == "Secondary" then
 		inv.activeWeaponSlot = equipSlot
 		EquipUpdateEvent:FireClient(player, equipSlot, newEquip.itemId)
@@ -241,7 +252,7 @@ function InventoryManager_EquipItem(player, gridSlot)
 	return true
 end
 
--- Unequip เธเธฒเธ equipment โ’ grid
+-- Unequip จาก equipment  grid
 function InventoryManager_UnequipItem(player, equipSlotName)
 	local inv = inventories[player]
 	if not inv then return false end
@@ -252,10 +263,10 @@ function InventoryManager_UnequipItem(player, equipSlotName)
 	local emptySlot = findEmptySlot(inv)
 	if not emptySlot then return false, "Inventory full" end
 
-	inv.grid[emptySlot] = { itemId = equip.itemId, quantity = 1 }
+	inv.grid[emptySlot] = { itemId = equip.itemId, quantity = 1, ammo = equip.ammo or 0 }
 	inv.equipment[equipSlotName] = nil
 
-	-- เธ–เนเธฒเธ–เธญเธ”เธญเธฒเธงเธธเธเธ—เธตเนเธเธณเธฅเธฑเธเนเธเน โ’ เนเธกเนเธกเธต active weapon
+	-- ถ้าถอดอาวุธที่กำลังใช้  ไม่มี active weapon
 	if inv.activeWeaponSlot == equipSlotName then
 		inv.activeWeaponSlot = nil
 		EquipUpdateEvent:FireClient(player, nil, nil)
@@ -265,7 +276,7 @@ function InventoryManager_UnequipItem(player, equipSlotName)
 	return true
 end
 
--- เธชเธฅเธฑเธเธญเธฒเธงเธธเธ (เธเธ” 1/2)
+-- สลับอาวุธ (กด 1/2)
 function InventoryManager_SwitchWeapon(player, slot)
 	local inv = inventories[player]
 	if not inv then return end
@@ -281,7 +292,7 @@ function InventoryManager_SwitchWeapon(player, slot)
 	syncInventory(player)
 end
 
--- เธ”เธถเธเธเนเธญเธกเธนเธฅ active weapon
+-- ดึงข้อมูล active weapon
 function InventoryManager_GetActiveWeapon(player)
 	local inv = inventories[player]
 	if not inv or not inv.activeWeaponSlot then return nil end
@@ -292,7 +303,7 @@ function InventoryManager_GetActiveWeapon(player)
 	return equip.itemId, equip.ammo, inv.activeWeaponSlot
 end
 
--- เนเธเนเธเธฃเธฐเธชเธธเธ (เธขเธดเธ 1 เธเธฑเธ”)
+-- ใช้กระสุน (ยิง 1 นัด)
 function InventoryManager_UseAmmo(player)
 	local inv = inventories[player]
 	if not inv or not inv.activeWeaponSlot then return false end
@@ -305,7 +316,7 @@ function InventoryManager_UseAmmo(player)
 	return true, equip.ammo
 end
 
--- Reload เธญเธฒเธงเธธเธเธเธฑเธเธเธธเธเธฑเธ
+-- Reload อาวุธปัจจุบัน
 function InventoryManager_Reload(player)
 	local inv = inventories[player]
 	if not inv or not inv.activeWeaponSlot then return false end
@@ -317,12 +328,12 @@ function InventoryManager_Reload(player)
 	if not itemData or not itemData.MagazineSize then return false end
 
 	local needed = itemData.MagazineSize - (equip.ammo or 0)
-	if needed <= 0 then return false end  -- เธเธฃเธฐเธชเธธเธเน€เธ•เนเธกเนเธฅเนเธง
+	if needed <= 0 then return false end  -- กระสุนเต็มแล้ว
 
 	local ammoType = itemData.AmmoType
 	if not ammoType then return false end
 
-	-- เธซเธฒเธเธฃเธฐเธชเธธเธเนเธ grid
+	-- หากระสุนใน grid
 	local totalFound = 0
 	local ammoSlots = {}
 
@@ -339,7 +350,7 @@ function InventoryManager_Reload(player)
 
 	if totalFound <= 0 then return false, "No ammo" end
 
-	-- เนเธเนเธเธฃเธฐเธชเธธเธเธเธฒเธ grid
+	-- ใช้กระสุนจาก grid
 	local toUse = math.min(needed, totalFound)
 	local remaining = toUse
 
@@ -361,14 +372,14 @@ function InventoryManager_Reload(player)
 	return true, equip.ammo, itemData.ReloadTime
 end
 
--- เธ”เธถเธ Inventory เธเธญเธเธเธนเนเน€เธฅเนเธ (เธชเธณเธซเธฃเธฑเธ script เธญเธทเนเธเนเธเน)
+-- ดึง Inventory ของผู้เล่น (สำหรับ script อื่นใช้)
 function InventoryManager_GetInventory(player)
 	return inventories[player]
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  REMOTE EVENT HANDLERS
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 
 EquipItemEvent.OnServerEvent:Connect(function(player, gridSlot)
 	if type(gridSlot) ~= "number" then return end
@@ -389,20 +400,24 @@ DropItemEvent.OnServerEvent:Connect(function(player, gridSlot)
 	local slot = inv.grid[gridSlot]
 	if not slot then return end
 
-	-- เธฅเธเธเธฒเธ inventory
-	local droppedItemId = slot.itemId
+	-- ลบจาก inventory
+	local droppedItemId  = slot.itemId
+	local droppedQty     = slot.quantity or 1
+	local droppedAmmo    = slot.ammo or 0
 	inv.grid[gridSlot] = nil
 
-	-- เธชเธฃเนเธฒเธ pickup Part เธ—เธตเนเธ•เธณเนเธซเธเนเธเธเธนเนเน€เธฅเนเธ
+	-- สร้าง pickup Part ที่ตำแหน่งผู้เล่น
 	local character = player.Character
 	if character then
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
 		if rootPart then
-			-- เธชเนเธ event เนเธ ItemSpawner เน€เธเธทเนเธญเธชเธฃเนเธฒเธ pickup
-			local dropEvent = ReplicatedStorage:FindFirstChild("SpawnDroppedItem")
-			if dropEvent then
-				dropEvent:Fire(droppedItemId, rootPart.Position + rootPart.CFrame.LookVector * 5)
-			end
+			-- ส่ง event ไป ItemSpawner เพื่อสร้าง pickup
+			SpawnDroppedItem:Fire(
+				droppedItemId,
+				rootPart.Position + rootPart.CFrame.LookVector * 5,
+				droppedQty,
+				droppedAmmo
+			)
 		end
 	end
 
@@ -418,7 +433,7 @@ SwapSlotsEvent.OnServerEvent:Connect(function(player, fromSlot, toSlot)
 	if fromSlot < 1 or fromSlot > GRID_SIZE then return end
 	if toSlot < 1 or toSlot > GRID_SIZE then return end
 
-	-- เธชเธฅเธฑเธ slot
+	-- สลับ slot
 	local temp = inv.grid[fromSlot]
 	inv.grid[fromSlot] = inv.grid[toSlot]
 	inv.grid[toSlot] = temp
@@ -431,34 +446,88 @@ SwitchWeaponEvent.OnServerEvent:Connect(function(player, slotName)
 	InventoryManager_SwitchWeapon(player, slotName)
 end)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+--  DEATH DROP — ตายแล้วของกระจายกลางแมพ
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+local function dropAllOnDeath(player, deathPos)
+	local inv = inventories[player]
+	if not inv then return end
+
+	local loot = {}
+	for i = 1, GRID_SIZE do
+		local s = inv.grid[i]
+		if s then
+			table.insert(loot, { itemId = s.itemId, quantity = s.quantity or 1, ammo = s.ammo or 0 })
+		end
+	end
+	for _, eq in pairs(inv.equipment) do
+		if eq then
+			table.insert(loot, { itemId = eq.itemId, quantity = 1, ammo = eq.ammo or 0 })
+		end
+	end
+
+	local total = #loot
+	for i, entry in ipairs(loot) do
+		local angle  = (i / math.max(total, 1)) * math.pi * 2
+		local radius = 3 + (i % 3)
+		local offset = Vector3.new(math.cos(angle) * radius, 2, math.sin(angle) * radius)
+		SpawnDroppedItem:Fire(entry.itemId, deathPos + offset, entry.quantity, entry.ammo)
+	end
+
+	-- ล้าง inventory
+	inventories[player] = createInventory()
+	syncInventory(player)
+	EquipUpdateEvent:FireClient(player, nil, nil)
+end
+
+local function hookCharacter(player, character)
+	character:SetAttribute("Team", "Player")
+	local hum = character:WaitForChild("Humanoid", 10)
+	if not hum then return end
+
+	hum.Died:Connect(function()
+		local root = character:FindFirstChild("HumanoidRootPart")
+		local pos  = root and root.Position or Vector3.new(0, 10, 0)
+		dropAllOnDeath(player, pos)
+	end)
+end
+
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 --  PLAYER JOIN / LEAVE
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-Players.PlayerAdded:Connect(function(player)
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+local function onPlayerAdded(player)
 	inventories[player] = createInventory()
 
-	-- โ ๏ธ เนเธซเนเธเธญเธเน€เธฃเธดเนเธกเธ•เนเธ (debug / testing)
-	-- เธฅเธเธญเธญเธเธ•เธญเธ production
+	player.CharacterAdded:Connect(function(char)
+		hookCharacter(player, char)
+	end)
+	if player.Character then
+		hookCharacter(player, player.Character)
+	end
+
+	-- ?? ของเริ่มต้น (debug) — ลบออกตอน production
 	task.defer(function()
-		InventoryManager_AddItem(player, "pistol", 1)
+		InventoryManager_AddItem(player, "pistol", 1, 7)
 		InventoryManager_AddItem(player, "knife", 1)
 		InventoryManager_AddItem(player, "ammo_pistol", 30)
 		InventoryManager_AddItem(player, "bandage", 3)
 	end)
-end)
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+for _, p in ipairs(Players:GetPlayers()) do
+	onPlayerAdded(p)   -- กันผู้เล่นที่ join ก่อน script โหลดเสร็จ
+end
 
 Players.PlayerRemoving:Connect(function(player)
 	inventories[player] = nil
 end)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  MAKE FUNCTIONS GLOBAL (เนเธซเน Script เธญเธทเนเธเน€เธฃเธตเธขเธเนเธ”เน)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-local module = Instance.new("ModuleScript")
-module.Name = "InventoryAPI"
-module.Parent = ReplicatedStorage
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
+--  MAKE FUNCTIONS GLOBAL (ให้ Script อื่นเรียกได้)
+-- อออออออออออออออออออออออออออออออออออออออออออออออ
 
--- เนเธเน _G เธชเธณเธซเธฃเธฑเธ cross-script communication
+-- ใช้ _G สำหรับ cross-script communication
 _G.InventoryManager = {
 	AddItem        = InventoryManager_AddItem,
 	RemoveFromSlot = InventoryManager_RemoveFromSlot,

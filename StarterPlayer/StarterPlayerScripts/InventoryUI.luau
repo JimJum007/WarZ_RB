@@ -1,11 +1,11 @@
 --------------------------------------------------------------
 -- InventoryUI.lua  (LocalScript)
 --
--- โ ๏ธ เธงเธฒเธเนเธ: StarterPlayer โ’ StarterPlayerScripts
---    (เนเธกเนเนเธเน StarterGui! เน€เธเธฃเธฒเธฐ CharacterAutoLoads = false
---     เธ—เธณเนเธซเน StarterGui เนเธกเน clone เธเธเธเธงเนเธฒเธ•เธฑเธงเธฅเธฐเธเธฃเธเธฐ Spawn)
+-- ?? วางใน: StarterPlayer  StarterPlayerScripts
+--    (ไม่ใช่ StarterGui! เพราะ CharacterAutoLoads = false
+--     ทำให้ StarterGui ไม่ clone จนกว่าตัวละครจะ Spawn)
 --
--- เธเธ” I เน€เธเธทเนเธญเน€เธเธดเธ”/เธเธดเธ” Inventory (เธซเธฅเธฑเธเธเธ” PLAY เนเธฅเนเธงเน€เธ—เนเธฒเธเธฑเนเธ)
+-- กด I เพื่อเปิด/ปิด Inventory (หลังกด PLAY แล้วเท่านั้น)
 --------------------------------------------------------------
 
 local Players               = game:GetService("Players")
@@ -17,40 +17,40 @@ local RunService            = game:GetService("RunService")
 local player    = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- เนเธซเธฅเธ” ItemDatabase + RemoteEvents
+-- โหลด ItemDatabase + RemoteEvents
 local ItemDatabase       = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 local SyncInventoryEvent = ReplicatedStorage:WaitForChild("SyncInventory")
 local EquipItemEvent     = ReplicatedStorage:WaitForChild("EquipItem")
 local UnequipItemEvent   = ReplicatedStorage:WaitForChild("UnequipItem")
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  เธเนเธญเธเธเธฑเธ script เธ—เธณเธเธฒเธเธเนเธณ
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  ป้องกัน script ทำงานซ้ำ
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 if playerGui:FindFirstChild("InventoryGui") then
-	return -- เธกเธต GUI เธญเธขเธนเนเนเธฅเนเธง เนเธกเนเธชเธฃเนเธฒเธเธเนเธณ
+	return -- มี GUI อยู่แล้ว ไม่สร้างซ้ำ
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  โ… เธเธดเธ” Roblox CoreGui เธ—เธตเนเธเธฅเธทเธเธเธธเนเธก I
---     Avatar Inspect Menu เนเธเนเธเธธเนเธก I เน€เธเนเธ default
---     เธ—เธณเนเธซเน InputBegan เนเธกเน fire เธชเธณเธซเธฃเธฑเธ I เน€เธฅเธข
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  ? ปิด Roblox CoreGui ที่กลืนปุ่ม I
+--     Avatar Inspect Menu ใช้ปุ่ม I เป็น default
+--     ทำให้ InputBegan ไม่ fire สำหรับ I เลย
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local StarterGui  = game:GetService("StarterGui")
 local GuiService  = game:GetService("GuiService")
 
--- เธเธดเธ” Inspect Menu (เธเธธเนเธก I)
+-- ปิด Inspect Menu (ปุ่ม I)
 pcall(function()
 	GuiService:SetInspectMenuEnabled(false)
 end)
 
--- เธเธดเธ” Backpack เน€เธ”เธดเธกเธเธญเธ Roblox (เน€เธฃเธฒเนเธเน Inventory เน€เธญเธ)
+-- ปิด Backpack เดิมของ Roblox (เราใช้ Inventory เอง)
 pcall(function()
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 end)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  SHARED STATE (เนเธซเน CrosshairClient เธญเนเธฒเธเนเธ”เน)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  SHARED STATE (ให้ CrosshairClient อ่านได้)
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local inventoryOpenValue = playerGui:FindFirstChild("InventoryOpen")
 if not inventoryOpenValue then
 	inventoryOpenValue = Instance.new("BoolValue")
@@ -59,9 +59,9 @@ if not inventoryOpenValue then
 	inventoryOpenValue.Parent = playerGui
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  COLOR PALETTE  (Survival / Horror Style)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local C = {
 	bg           = Color3.fromRGB(30, 28, 26),
 	overlay      = Color3.fromRGB(0, 0, 0),
@@ -99,9 +99,9 @@ local FONT_BOLD    = Enum.Font.GothamBold
 local FONT_SEMI    = Enum.Font.GothamSemibold
 local FONT_REGULAR = Enum.Font.Gotham
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  INVENTORY DATA  (เธเนเธญเธกเธนเธฅเธเธฒเธ Server)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  INVENTORY DATA  (ข้อมูลจาก Server)
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local equippedItems = {
 	primary   = nil,  -- { name, desc, itemId }
 	secondary = nil,
@@ -111,22 +111,22 @@ local equippedItems = {
 
 local gridItems = {}  -- [1..20] = { name, desc, itemId, quantity } or nil
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  STATE
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local isOpen          = false
 local activeTab       = "INVENTORY"
 local selectedSlot    = nil
 local gameStarted     = false
-local savedWalkSpeed  = nil   -- เน€เธเนเธเธเนเธฒ WalkSpeed เธเนเธญเธเน€เธเธดเธ” Inventory
-local savedJumpPower  = nil   -- เน€เธเนเธเธเนเธฒ JumpPower เธเนเธญเธเน€เธเธดเธ” Inventory
+local savedWalkSpeed  = nil   -- เก็บค่า WalkSpeed ก่อนเปิด Inventory
+local savedJumpPower  = nil   -- เก็บค่า JumpPower ก่อนเปิด Inventory
 
 -- forward declarations
 local detailPreview, detailNameLbl, detailDescLbl
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  UTILITY HELPERS
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local function addCorner(parent, r)
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, r or 4)
@@ -164,27 +164,27 @@ end
 local selectedSource = nil   -- "grid" or "equip"
 local selectedIndex  = nil   -- grid slot number or equip key ("primary" etc.)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  FORWARD DECLARATIONS เธชเธณเธซเธฃเธฑเธเธเธฑเธเธเนเธเธฑเธ UI
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  FORWARD DECLARATIONS สำหรับฟังก์ชัน UI
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local showDetail
 local selectSlot
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  เน€เธเธดเธ” / เธเธดเธ” INVENTORY
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-local gui -- เธชเธฃเนเธฒเธเธ”เนเธฒเธเธฅเนเธฒเธ
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  เปิด / ปิด INVENTORY
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+local gui -- สร้างด้านล่าง
 
 local function openInventory()
 	isOpen = true
 	gui.Enabled = true
+	gui.DisplayOrder = 1000
 	inventoryOpenValue.Value = true
-
-	-- เธเธฅเธ”เธฅเนเธญเธเน€เธกเธฒเธชเน เน€เธเธทเนเธญเนเธซเนเธเธฅเธดเธ UI เนเธ”เน
 	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 	UserInputService.MouseIconEnabled = true
+	GuiService.SelectedObject = nil
 
-	-- โ… เธซเธขเธธเธ”เธ•เธฑเธงเธฅเธฐเธเธฃเน€เธ”เธดเธ (เธเนเธญเธเธเธฑเธเธ•เธฑเธงเธฅเธฐเธเธฃเธเธขเธฑเธเธ•เธญเธเน€เธเธดเธ” Inventory)
+	-- ? หยุดตัวละครเดิน (ป้องกันตัวละครขยับตอนเปิด Inventory)
 	local character = player.Character
 	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -200,13 +200,14 @@ end
 local function closeInventory()
 	isOpen = false
 	gui.Enabled = false
+	gui.DisplayOrder = 10
 	inventoryOpenValue.Value = false
 
-	-- เธฅเนเธญเธเน€เธกเธฒเธชเนเธเธฅเธฑเธ (CrosshairClient เธเธฐเธเธฑเธ”เธเธฒเธฃเธ•เนเธญ)
 	UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
 	UserInputService.MouseIconEnabled = false
+	GuiService.SelectedObject = nil
 
-	-- โ… เธเธทเธเธเนเธฒเน€เธ”เธดเธ/เธเธฃเธฐเนเธ”เธ”เนเธซเนเธ•เธฑเธงเธฅเธฐเธเธฃ
+	-- ? คืนค่าเดิน/กระโดดให้ตัวละคร
 	local character = player.Character
 	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -219,9 +220,9 @@ local function closeInventory()
 	savedJumpPower = nil
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  SCREEN GUI
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 gui = Instance.new("ScreenGui")
 gui.Name           = "InventoryGui"
 gui.ResetOnSpawn   = false
@@ -230,7 +231,7 @@ gui.DisplayOrder   = 10
 gui.Enabled        = false
 gui.Parent         = playerGui
 
--- โ”€โ”€ dark overlay โ”€โ”€
+-- ฤฤ dark overlay ฤฤ
 local overlay = Instance.new("Frame")
 overlay.Name                   = "Overlay"
 overlay.Size                   = UDim2.new(1, 0, 1, 0)
@@ -240,9 +241,9 @@ overlay.BorderSizePixel        = 0
 overlay.ZIndex                 = 1
 overlay.Parent                 = gui
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  MAIN FRAME
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local main = Instance.new("Frame")
 main.Name             = "MainFrame"
 main.AnchorPoint      = Vector2.new(0.5, 0.5)
@@ -255,9 +256,9 @@ main.Parent           = gui
 addCorner(main, 6)
 addStroke(main, Color3.fromRGB(55, 48, 42), 2)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  TOP NAVIGATION BAR
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local topBar = Instance.new("Frame")
 topBar.Name             = "TopBar"
 topBar.Size             = UDim2.new(1, 0, 0, 44)
@@ -325,9 +326,9 @@ for i, name in ipairs(tabs) do
 	end)
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  CONTENT AREA
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local content = Instance.new("Frame")
 content.Name                   = "Content"
 content.Size                   = UDim2.new(1, -24, 1, -58)
@@ -336,9 +337,9 @@ content.BackgroundTransparency = 1
 content.ZIndex                 = 3
 content.Parent                 = main
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  LEFT PANEL  (58%)
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local leftPanel = Instance.new("Frame")
 leftPanel.Name                   = "LeftPanel"
 leftPanel.Size                   = UDim2.new(0.58, 0, 1, 0)
@@ -346,9 +347,9 @@ leftPanel.BackgroundTransparency = 1
 leftPanel.ZIndex                 = 3
 leftPanel.Parent                 = content
 
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
---  EQUIPMENT SLOTS  (4 เธเนเธญเธ)
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+--  EQUIPMENT SLOTS  (4 ช่อง)
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 local equipRow = Instance.new("Frame")
 equipRow.Name                   = "EquipmentRow"
 equipRow.Size                   = UDim2.new(1, 0, 0, 105)
@@ -453,9 +454,9 @@ for i, def in ipairs(equipDefs) do
 	sub.Parent                 = wrap
 end
 
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 --  BACKPACK INFO BAR
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 local bpBar = Instance.new("Frame")
 bpBar.Name             = "BackpackBar"
 bpBar.Size             = UDim2.new(1, 0, 0, 52)
@@ -532,9 +533,9 @@ wCur.TextXAlignment         = Enum.TextXAlignment.Left
 wCur.ZIndex                 = 4
 wCur.Parent                 = bpBar
 
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
---  INVENTORY GRID  (5 ร— 4 = 20 slots)
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+--  INVENTORY GRID  (5 ? 4 = 20 slots)
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 local gridOuter = Instance.new("Frame")
 gridOuter.Name             = "GridOuter"
 gridOuter.Size             = UDim2.new(1, 0, 0, 380)
@@ -632,9 +633,9 @@ for i = 1, 20 do
 	end)
 end
 
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 --  CHANGE BACKPACK BUTTON
--- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
 local changeBp = Instance.new("TextButton")
 changeBp.Name             = "ChangeBackpack"
 changeBp.Size             = UDim2.new(0, 230, 0, 38)
@@ -676,9 +677,9 @@ changeBp.MouseLeave:Connect(function()
 	tweenColor(changeBp, "BackgroundColor3", C.btnRed)
 end)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  RIGHT PANEL  (42%)  โ€”  Item Detail
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  RIGHT PANEL  (42%)  —  Item Detail
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local rightPanel = Instance.new("Frame")
 rightPanel.Name                   = "RightPanel"
 rightPanel.Size                   = UDim2.new(0.42, 0, 1, 0)
@@ -766,9 +767,9 @@ detailDescLbl.LineHeight             = 1.35
 detailDescLbl.ZIndex                 = 5
 detailDescLbl.Parent                 = detailBox
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  BACK TO GAME BUTTON
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local backBtn = Instance.new("TextButton")
 backBtn.Name             = "BackToGame"
 backBtn.Size             = UDim2.new(0, 185, 0, 38)
@@ -795,7 +796,7 @@ backBtn.MouseButton1Click:Connect(function()
 	closeInventory()
 end)
 function showDetail(item, source, index)
-	-- เธเนเธญเธเธเธธเนเธก action เน€เธเนเธฒ
+	-- ซ่อนปุ่ม action เก่า
 	if detailBox then
 		local oldBtn = detailBox:FindFirstChild("ActionBtn")
 		if oldBtn then oldBtn:Destroy() end
@@ -810,7 +811,7 @@ function showDetail(item, source, index)
 	detailNameLbl.Text = string.upper(item.name)
 	detailDescLbl.Text = item.desc or ""
 
-	-- เธชเธฃเนเธฒเธเธเธธเนเธก EQUIP / UNEQUIP
+	-- สร้างปุ่ม EQUIP / UNEQUIP
 	if source and detailBox then
 		local actionBtn = Instance.new("TextButton")
 		actionBtn.Name             = "ActionBtn"
@@ -825,22 +826,22 @@ function showDetail(item, source, index)
 		addCorner(actionBtn, 4)
 
 		if source == "grid" then
-			-- เธเธธเนเธก EQUIP (เธ–เนเธฒเน€เธเนเธ equipment item)
+			-- ปุ่ม EQUIP (ถ้าเป็น equipment item)
 			local equipSlot = ItemDatabase.GetEquipSlot(item.itemId)
 			if equipSlot then
-				actionBtn.Text             = "โ–ฒ EQUIP"
+				actionBtn.Text             = " EQUIP"
 				actionBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
 				actionBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 50)
 				actionBtn.MouseButton1Click:Connect(function()
 					EquipItemEvent:FireServer(index)
 				end)
 			else
-				actionBtn:Destroy()  -- เนเธกเนเนเธเน equipment item
+				actionBtn:Destroy()  -- ไม่ใช่ equipment item
 			end
 		elseif source == "equip" then
-			-- เธเธธเนเธก UNEQUIP
+			-- ปุ่ม UNEQUIP
 			local slotMap = { primary = "Primary", secondary = "Secondary", armor = "Armor", headgear = "Headgear" }
-			actionBtn.Text             = "โ–ผ UNEQUIP"
+			actionBtn.Text             = " UNEQUIP"
 			actionBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
 			actionBtn.BackgroundColor3 = Color3.fromRGB(140, 50, 50)
 			actionBtn.MouseButton1Click:Connect(function()
@@ -861,16 +862,16 @@ function selectSlot(btn, item, source, index)
 	showDetail(item, source, index)
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  REFRESH UI เธเธฒเธ Server Data
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  REFRESH UI จาก Server Data
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local function refreshUI()
-	-- โ”€โ”€โ”€โ”€โ”€ เธญเธฑเธเน€เธ”เธ• Grid Slots โ”€โ”€โ”€โ”€โ”€
+	-- ฤฤฤฤฤ อัพเดต Grid Slots ฤฤฤฤฤ
 	for i = 1, 20 do
 		local slot = gridInner:FindFirstChild("Slot_" .. i)
 		if not slot then continue end
 
-		-- เธฅเธ child เน€เธเนเธฒ (icon, name, badge) เธขเธเน€เธงเนเธ UICorner/UIStroke
+		-- ลบ child เก่า (icon, name, badge) ยกเว้น UICorner/UIStroke
 		for _, child in ipairs(slot:GetChildren()) do
 			if not child:IsA("UICorner") and not child:IsA("UIStroke") then
 				child:Destroy()
@@ -923,7 +924,7 @@ local function refreshUI()
 		end
 	end
 
-	-- โ”€โ”€โ”€โ”€โ”€ เธญเธฑเธเน€เธ”เธ• Equipment Slots โ”€โ”€โ”€โ”€โ”€
+	-- ฤฤฤฤฤ อัพเดต Equipment Slots ฤฤฤฤฤ
 	local slotMap = { primary = "Primary", secondary = "Secondary", armor = "Armor", headgear = "Headgear" }
 	for key, slotName in pairs(slotMap) do
 		local wrap = equipRow:FindFirstChild("EQ_" .. key)
@@ -931,7 +932,7 @@ local function refreshUI()
 		local box = wrap:FindFirstChild("Box")
 		if not box then continue end
 
-		-- เธฅเธ name label เน€เธเนเธฒ
+		-- ลบ name label เก่า
 		for _, child in ipairs(box:GetChildren()) do
 			if child:IsA("TextLabel") then
 				child:Destroy()
@@ -954,13 +955,13 @@ local function refreshUI()
 		end
 	end
 
-	-- เธฃเธตเน€เธเนเธ•เธเธธเนเธกเธ—เธตเนเน€เธฅเธทเธญเธเนเธงเนเธเนเธญเธเธซเธเนเธฒเนเธซเนเน€เธเนเธเธชเธตเธเธทเนเธเธเธเธ•เธด (เธเนเธญเธเธเธฐ select เนเธซเธกเน)
+	-- รีเซ็ตปุ่มที่เลือกไว้ก่อนหน้าให้เป็นสีพื้นปกติ (ก่อนจะ select ใหม่)
 	if selectedSlot then
 		tweenColor(selectedSlot, "BackgroundColor3", C.slot)
 	end
 	selectedSlot = nil
 
-	-- เธเธขเธฒเธขเธฒเธก re-select เธเนเธญเธเน€เธ”เธดเธก (เธ–เนเธฒเธขเธฑเธเธกเธตเนเธญเน€เธ—เธกเธญเธขเธนเน)
+	-- พยายาม re-select ช่องเดิม (ถ้ายังมีไอเทมอยู่)
 	if selectedSource == "grid" and selectedIndex then
 		local item = gridItems[selectedIndex]
 		local newSlotBtn = gridInner:FindFirstChild("Slot_" .. selectedIndex)
@@ -987,13 +988,13 @@ local function refreshUI()
 	end
 end
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  เธฃเธฑเธ Inventory Sync เธเธฒเธ Server
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  รับ Inventory Sync จาก Server
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 SyncInventoryEvent.OnClientEvent:Connect(function(data)
 	if not data then return end
 
-	-- เธญเธฑเธเน€เธ”เธ• gridItems
+	-- อัพเดต gridItems
 	gridItems = {}
 	if data.grid then
 		for i, slotData in pairs(data.grid) do
@@ -1012,7 +1013,7 @@ SyncInventoryEvent.OnClientEvent:Connect(function(data)
 		end
 	end
 
-	-- เธญเธฑเธเน€เธ”เธ• equippedItems
+	-- อัพเดต equippedItems
 	equippedItems = { primary = nil, secondary = nil, armor = nil, headgear = nil }
 	if data.equipment then
 		local keyMap = { Primary = "primary", Secondary = "secondary", Armor = "armor", Headgear = "headgear" }
@@ -1035,13 +1036,13 @@ SyncInventoryEvent.OnClientEvent:Connect(function(data)
 	refreshUI()
 end)
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 --  TOGGLE INPUT  (Press I)
---  โ… เนเธเน ContextActionService:BindActionAtPriority
---     เธ”เนเธงเธข priority เธชเธนเธเธชเธธเธ” (10000)
---     เน€เธเธทเนเธญเนเธขเนเธเธเธธเนเธก I เธเธทเธเธเธฒเธ Roblox core scripts
---     เธ—เธตเน bind เธเธธเนเธก I เธ”เนเธงเธข priority เธ•เนเธณเธเธงเนเธฒ
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  ? ใช้ ContextActionService:BindActionAtPriority
+--     ด้วย priority สูงสุด (10000)
+--     เพื่อแย่งปุ่ม I คืนจาก Roblox core scripts
+--     ที่ bind ปุ่ม I ด้วย priority ต่ำกว่า
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local ContextActionService = game:GetService("ContextActionService")
 
 local function handleInventoryToggle(_actionName, inputState, _inputObject)
@@ -1053,7 +1054,7 @@ local function handleInventoryToggle(_actionName, inputState, _inputObject)
 		return Enum.ContextActionResult.Pass
 	end
 
-	-- เธเนเธญเธเธเธฑเธเธ•เธญเธเธเธดเธกเธเน chat
+	-- ป้องกันตอนพิมพ์ chat
 	if UserInputService:GetFocusedTextBox() then
 		return Enum.ContextActionResult.Pass
 	end
@@ -1066,29 +1067,28 @@ local function handleInventoryToggle(_actionName, inputState, _inputObject)
 		openInventory()
 	end
 
-	-- Sink = เธเธฅเธทเธ input เนเธกเนเนเธซเน core scripts เน€เธซเนเธ
+	-- Sink = กลืน input ไม่ให้ core scripts เห็น
 	return Enum.ContextActionResult.Sink
 end
 
--- Bind เธ—เธฑเธเธ—เธตเธ”เนเธงเธข priority เธชเธนเธเธชเธธเธ” (เนเธกเนเธ•เนเธญเธเธฃเธญ StartGameplay)
--- gameStarted เธเธฐเน€เธเนเธเนเธเธเธฑเธเธเนเธเธฑเธ handleInventoryToggle เน€เธญเธ
 ContextActionService:BindActionAtPriority(
 	"ToggleInventory",
 	handleInventoryToggle,
-	false,                -- เนเธกเนเธชเธฃเนเธฒเธเธเธธเนเธกเธกเธทเธญเธ–เธทเธญ
-	10000,                -- priority เธชเธนเธเธกเธฒเธ
-	Enum.KeyCode.B
+	false,
+	10000,
+	Enum.KeyCode.B,
+	Enum.KeyCode.I
 )
 
-print("[InventoryUI] Bound to B key")
+print("[InventoryUI] Bound to B/I keys")
 
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  เธฃเธญ StartGameplay โ’ เน€เธเธดเธ”เนเธซเนเธเธ” I เนเธ”เน
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+-- ออออออออออออออออออออออออออออออออออออออออออออ
+--  รอ StartGameplay  เปิดให้กด I ได้
+-- ออออออออออออออออออออออออออออออออออออออออออออ
 local startGameplayEvent = ReplicatedStorage:WaitForChild("StartGameplay")
 startGameplayEvent.OnClientEvent:Connect(function()
 	gameStarted = true
-	print("[InventoryUI] Game started โ€” press I to toggle inventory")
+	print("[InventoryUI] Game started — press I to toggle inventory")
 end)
 
 print("[InventoryUI] Script loaded, waiting for PLAY...")
