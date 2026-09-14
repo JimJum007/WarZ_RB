@@ -4,68 +4,35 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
-      "Shared": {
-        "$path": "src/shared"
-      }
+      "AnimationDatabase": { "$path": "src/shared/AnimationDatabase.luau" },
+      "ItemDatabase":      { "$path": "src/shared/ItemDatabase.luau" },
+      "AvatarConfig":      { "$path": "src/shared/AvatarConfig.luau" },
+
+      "PlayGame":          { "$className": "RemoteEvent" },
+      "StartGameplay":     { "$className": "RemoteEvent" },
+      "PickupItem":        { "$className": "RemoteEvent" },
+      "DropItem":          { "$className": "RemoteEvent" },
+      "EquipItem":         { "$className": "RemoteEvent" },
+      "UnequipItem":       { "$className": "RemoteEvent" },
+      "SwapSlots":         { "$className": "RemoteEvent" },
+      "SwitchWeaponSlot":  { "$className": "RemoteEvent" },
+      "SyncInventory":     { "$className": "RemoteEvent" },
+      "EquipUpdate":       { "$className": "RemoteEvent" },
+      "ShootWeapon":       { "$className": "RemoteEvent" },
+      "MeleeAttack":       { "$className": "RemoteEvent" },
+      "ReloadWeapon":      { "$className": "RemoteEvent" },
+      "HitMarker":         { "$className": "RemoteEvent" },
+      "WeaponState":       { "$className": "RemoteEvent" }
     },
 
     "ServerScriptService": {
-      "Server": {
-        "$path": "src/server"
-      }
+      "$path": "src/server"
     },
 
     "StarterPlayer": {
+      "$className": "StarterPlayer",
       "StarterPlayerScripts": {
-        "Client": {
-          "$path": "src/client"
-        }
-      }
-    },
-
-    "Workspace": {
-      "$properties": {
-        "StreamingEnabled": true
-      },
-      "Baseplate": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Color": [
-            0.38823,
-            0.37254,
-            0.38823
-          ],
-          "Locked": true,
-          "Position": [
-            0,
-            -10,
-            0
-          ],
-          "Size": [
-            512,
-            20,
-            512
-          ]
-        }
-      }
-    },
-    "Lighting": {
-      "$properties": {
-        "Ambient": [
-          0,
-          0,
-          0
-        ],
-        "Brightness": 2,
-        "GlobalShadows": true,
-        "Outlines": false,
-        "Technology": "Voxel"
-      }
-    },
-    "SoundService": {
-      "$properties": {
-        "RespectFilteringEnabled": true
+        "$path": "src/client"
       }
     }
   }
