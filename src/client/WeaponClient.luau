@@ -1,8 +1,8 @@
 --------------------------------------------------------------
 -- WeaponClient.lua  (LocalScript)
--- วางใน: StarterPlayer  StarterPlayerScripts
+-- เธงเธฒเธเนเธ: StarterPlayer โ’ StarterPlayerScripts
 --
--- จัดการ Input ของอาวุธ (คลิกยิง, รีโหลด, สลับปืน) และแสดง HUD อาวุธ
+-- เธเธฑเธ”เธเธฒเธฃ Input เธเธญเธเธญเธฒเธงเธธเธ (เธเธฅเธดเธเธขเธดเธ, เธฃเธตเนเธซเธฅเธ”, เธชเธฅเธฑเธเธเธทเธ) เนเธฅเธฐเนเธชเธ”เธ HUD เธญเธฒเธงเธธเธ
 --------------------------------------------------------------
 
 local Players           = game:GetService("Players")
@@ -14,13 +14,13 @@ local TweenService      = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local mouse  = player:GetMouse()
 
--- รอให้เกมเริ่ม
+-- เธฃเธญเนเธซเนเน€เธเธกเน€เธฃเธดเนเธก
 local startGameplay = ReplicatedStorage:WaitForChild("StartGameplay")
 startGameplay.OnClientEvent:Wait()
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  โหลดโมดูล & RemoteEvents
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  เนเธซเธฅเธ”เนเธกเธ”เธนเธฅ & RemoteEvents
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local ItemDatabase       = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 local ShootEvent         = ReplicatedStorage:WaitForChild("ShootWeapon")
 local MeleeEvent         = ReplicatedStorage:WaitForChild("MeleeAttack")
@@ -28,9 +28,9 @@ local ReloadEvent        = ReplicatedStorage:WaitForChild("ReloadWeapon")
 local EquipUpdateEvent   = ReplicatedStorage:WaitForChild("EquipUpdate")
 local SyncInventoryEvent = ReplicatedStorage:WaitForChild("SyncInventory")
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  STATE อาวุธปัจจุบัน
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  STATE เธญเธฒเธงเธธเธเธเธฑเธเธเธธเธเธฑเธ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local currentWeaponId = nil
 local currentAmmo     = 0
 local isReloading     = false
@@ -38,9 +38,9 @@ local isMouseDown     = false
 local lastFireTime    = 0
 
 local playerGui = player:WaitForChild("PlayerGui")
-local function updateHud() end   -- HUD ย้ายไป HUDClient แล้ว
+local function updateHud() end   -- HUD เธขเนเธฒเธขเนเธ HUDClient เนเธฅเนเธง
 
--- รับการเปลี่ยนแปลงอาวุธจาก Server (จากการกด 1/2 สลับปืน หรือ equip/unequip)
+-- เธฃเธฑเธเธเธฒเธฃเน€เธเธฅเธตเนเธขเธเนเธเธฅเธเธญเธฒเธงเธธเธเธเธฒเธ Server (เธเธฒเธเธเธฒเธฃเธเธ” 1/2 เธชเธฅเธฑเธเธเธทเธ เธซเธฃเธทเธญ equip/unequip)
 EquipUpdateEvent.OnClientEvent:Connect(function(slotName, itemId)
 	isReloading = false
 	lastFireTime = 0
@@ -52,7 +52,7 @@ EquipUpdateEvent.OnClientEvent:Connect(function(slotName, itemId)
 	updateHud()
 end)
 
--- รับข้อมูลกระสุนอัพเดต
+-- เธฃเธฑเธเธเนเธญเธกเธนเธฅเธเธฃเธฐเธชเธธเธเธญเธฑเธเน€เธ”เธ•
 SyncInventoryEvent.OnClientEvent:Connect(function(data)
 	if not data or not data.equipment or not data.activeWeaponSlot then return end
 
@@ -63,33 +63,33 @@ SyncInventoryEvent.OnClientEvent:Connect(function(data)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  ระบบยิง
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  เธฃเธฐเธเธเธขเธดเธ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function fireWeapon()
 	if not currentWeaponId or isReloading then return end
 
-	-- เช็คว่าเปิด Inventory อยู่ไหม
+	-- เน€เธเนเธเธงเนเธฒเน€เธเธดเธ” Inventory เธญเธขเธนเนเนเธซเธก
 	local flag = playerGui:FindFirstChild("InventoryOpen")
 	if flag and flag.Value then return end
 
 	local itemData = ItemDatabase.GetItem(currentWeaponId)
 	if not itemData then return end
 
-	-- เช็ค Cooldown
+	-- เน€เธเนเธ Cooldown
 	local now = os.clock()
 	if now - lastFireTime < (itemData.FireRate or 0.5) then return end
 
 	if itemData.Subtype == "Melee" then
-		-- ฟันมีด
+		-- เธเธฑเธเธกเธตเธ”
 		lastFireTime = now
 		if _G.PlayWeaponAction then _G.PlayWeaponAction("Attack") end
 		MeleeEvent:FireServer()
 	else
-		-- ปืน
+		-- เธเธทเธ
 		if currentAmmo > 0 then
 			lastFireTime = now
-			currentAmmo = currentAmmo - 1 -- หักหลอกใน Client ไปก่อนให้ดูเร็ว Server จะหักจริงทีหลัง
+			currentAmmo = currentAmmo - 1 -- เธซเธฑเธเธซเธฅเธญเธเนเธ Client เนเธเธเนเธญเธเนเธซเนเธ”เธนเน€เธฃเนเธง Server เธเธฐเธซเธฑเธเธเธฃเธดเธเธ—เธตเธซเธฅเธฑเธ
 			updateHud()
 
 			local character = player.Character
@@ -98,14 +98,14 @@ local function fireWeapon()
 				ShootEvent:FireServer(mouse.Hit.Position)
 			end
 		else
-			-- กระสุนหมด
-			-- สามารถเล่นเสียงแชะ (Click) ได้ที่นี่
+			-- เธเธฃเธฐเธชเธธเธเธซเธกเธ”
+			-- เธชเธฒเธกเธฒเธฃเธ–เน€เธฅเนเธเน€เธชเธตเธขเธเนเธเธฐ (Click) เนเธ”เนเธ—เธตเนเธเธตเน
 		end
 	end
 end
 
--- ลูปสำหรับการยิงแบบออโต้ (กดค้าง)
--- ยิงต่อเนื่องเฉพาะปืนออโต้
+-- เธฅเธนเธเธชเธณเธซเธฃเธฑเธเธเธฒเธฃเธขเธดเธเนเธเธเธญเธญเนเธ•เน (เธเธ”เธเนเธฒเธ)
+-- เธขเธดเธเธ•เนเธญเน€เธเธทเนเธญเธเน€เธเธเธฒเธฐเธเธทเธเธญเธญเนเธ•เน
 RunService.Heartbeat:Connect(function()
 	if not isMouseDown or not currentWeaponId then return end
 	local itemData = ItemDatabase.GetItem(currentWeaponId)
@@ -114,15 +114,15 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  INPUTS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		isMouseDown = true
-		fireWeapon()   -- นัดแรกยิงทันที (รองรับ semi-auto)
+		fireWeapon()   -- เธเธฑเธ”เนเธฃเธเธขเธดเธเธ—เธฑเธเธ—เธต (เธฃเธญเธเธฃเธฑเธ semi-auto)
 	elseif input.KeyCode == Enum.KeyCode.R then
 		if currentWeaponId and not isReloading then
 			local itemData = ItemDatabase.GetItem(currentWeaponId)
@@ -131,7 +131,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 				player:SetAttribute("Reloading", true)
 				ReloadEvent:FireServer()
 
-				-- หน่วงเวลา Reload (Server จะ Sync กลับมาอีกที แต่ตั้งหลอกๆ ให้คลิกไม่ได้ไปก่อน)
+				-- เธซเธเนเธงเธเน€เธงเธฅเธฒ Reload (Server เธเธฐ Sync เธเธฅเธฑเธเธกเธฒเธญเธตเธเธ—เธต เนเธ•เนเธ•เธฑเนเธเธซเธฅเธญเธเน เนเธซเนเธเธฅเธดเธเนเธกเนเนเธ”เนเนเธเธเนเธญเธ)
 				task.delay(itemData.ReloadTime or 2, function()
 					isReloading = false
 					player:SetAttribute("Reloading", false)
@@ -139,8 +139,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			end
 		end
 	elseif input.KeyCode == Enum.KeyCode.One then
-		-- ขอ Server สลับเป็นอาวุธหลัก
-		-- ต้องส่งผ่าน Remote แต่เพื่อให้เร็วและมี InventoryManager ใน_G อยู่บน Server เราควรเพิ่ม RemoteEvent
+		-- เธเธญ Server เธชเธฅเธฑเธเน€เธเนเธเธญเธฒเธงเธธเธเธซเธฅเธฑเธ
+		-- เธ•เนเธญเธเธชเนเธเธเนเธฒเธ Remote เนเธ•เนเน€เธเธทเนเธญเนเธซเนเน€เธฃเนเธงเนเธฅเธฐเธกเธต InventoryManager เนเธ_G เธญเธขเธนเนเธเธ Server เน€เธฃเธฒเธเธงเธฃเน€เธเธดเนเธก RemoteEvent
 		local switchRemote = ReplicatedStorage:FindFirstChild("SwitchWeaponSlot")
 		if switchRemote then switchRemote:FireServer("Primary") end
 	elseif input.KeyCode == Enum.KeyCode.Two then
@@ -158,7 +158,7 @@ end)
 local HitMarkerEvent = ReplicatedStorage:WaitForChild("HitMarker")
 HitMarkerEvent.OnClientEvent:Connect(function(isHead, dmg)
 	print(isHead and "HEADSHOT!" or "HIT", dmg)
-	-- TODO: แสดง X สีแดงกลางจอ + เสียง tick
+	-- TODO: เนเธชเธ”เธ X เธชเธตเนเธ”เธเธเธฅเธฒเธเธเธญ + เน€เธชเธตเธขเธ tick
 end)
 
 print("[WeaponClient] Ready")

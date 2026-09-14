@@ -1,16 +1,16 @@
 --------------------------------------------------------------
 -- CrosshairClient.lua  (LocalScript)
--- วางใน: StarterPlayer  StarterPlayerScripts
+-- เธงเธฒเธเนเธ: StarterPlayer โ’ StarterPlayerScripts
 --
--- ? Smooth FPS Camera System
---    - Spring-based transitions ทุกอย่าง
---    - Sprint + FOV change (Shift ค้าง)
---    - ADS / Aim Down Sights (คลิกขวาค้าง)
---    - Smooth stance (ย่อ/หมอบ)
---    - Smooth 1st  3rd person
+-- โ… Smooth FPS Camera System
+--    - Spring-based transitions เธ—เธธเธเธญเธขเนเธฒเธ
+--    - Sprint + FOV change (Shift เธเนเธฒเธ)
+--    - ADS / Aim Down Sights (เธเธฅเธดเธเธเธงเธฒเธเนเธฒเธ)
+--    - Smooth stance (เธขเนเธญ/เธซเธกเธญเธ)
+--    - Smooth 1st โ” 3rd person
 --    - Smooth shoulder swap
---    - Head tilt ตอนเดินเฉียง
---    - Inventory integration (ปุ่ม B)
+--    - Head tilt เธ•เธญเธเน€เธ”เธดเธเน€เธเธตเธขเธ
+--    - Inventory integration (เธเธธเนเธก B)
 --------------------------------------------------------------
 
 local Players          = game:GetService("Players")
@@ -22,9 +22,9 @@ local player    = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local startGameplayEvent = ReplicatedStorage:WaitForChild("StartGameplay")
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  SPRING CLASS  (ฟิสิกส์สปริงสำหรับ smooth motion)
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  SPRING CLASS  (เธเธดเธชเธดเธเธชเนเธชเธเธฃเธดเธเธชเธณเธซเธฃเธฑเธ smooth motion)
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local Spring = {}
 Spring.__index = Spring
 
@@ -64,17 +64,17 @@ function Spring:Reset(value)
 	self.Velocity = typeof(value) == "number" and 0 or Vector3.zero
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  INVENTORY STATE
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function isInventoryOpen()
 	local val = playerGui:FindFirstChild("InventoryOpen")
 	return val and val.Value or false
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  CROSSHAIR GUI
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local crosshairGui = Instance.new("ScreenGui")
 crosshairGui.Name           = "CrosshairGui"
 crosshairGui.IgnoreGuiInset = true
@@ -97,7 +97,7 @@ crosshair.Font                   = Enum.Font.GothamBold
 crosshair.TextScaled             = true
 crosshair.Parent                 = crosshairGui
 
--- ข้อความบอก mode ชั่วคราว
+-- เธเนเธญเธเธงเธฒเธกเธเธญเธ mode เธเธฑเนเธงเธเธฃเธฒเธง
 local modeText = Instance.new("TextLabel")
 modeText.AnchorPoint            = Vector2.new(0.5, 0.5)
 modeText.Position               = UDim2.new(0.5, 0, 0.5, 48)
@@ -110,9 +110,9 @@ modeText.Font                   = Enum.Font.GothamBold
 modeText.TextScaled             = true
 modeText.Parent                 = crosshairGui
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  CONSTANTS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 
 -- Mouse
 local MOUSE_SENSITIVITY = 0.0025
@@ -128,15 +128,15 @@ local FOV_SPRINT = 85
 local FOV_ADS    = 50
 
 -- Sprint
-local SPRINT_SPEED_MULT = 1.5   -- คูณ WalkSpeed ตอน sprint
+local SPRINT_SPEED_MULT = 1.5   -- เธเธนเธ“ WalkSpeed เธ•เธญเธ sprint
 
 -- ADS
-local ADS_DISTANCE_MULT = 0.5   -- กล้องเข้าใกล้ตัวละคร 50%
-local ADS_WALK_MULT     = 0.5   -- เดินช้าลง 50% ตอน ADS
-local ADS_CROSSHAIR_SIZE = 20   -- crosshair เล็กลงตอน ADS
+local ADS_DISTANCE_MULT = 0.5   -- เธเธฅเนเธญเธเน€เธเนเธฒเนเธเธฅเนเธ•เธฑเธงเธฅเธฐเธเธฃ 50%
+local ADS_WALK_MULT     = 0.5   -- เน€เธ”เธดเธเธเนเธฒเธฅเธ 50% เธ•เธญเธ ADS
+local ADS_CROSSHAIR_SIZE = 20   -- crosshair เน€เธฅเนเธเธฅเธเธ•เธญเธ ADS
 
 -- Head tilt
-local TILT_ANGLE = math.rad(2.5) -- เอียง 2.5 องศา
+local TILT_ANGLE = math.rad(2.5) -- เน€เธญเธตเธขเธ 2.5 เธญเธเธจเธฒ
 
 -- Crosshair
 local CROSSHAIR_NORMAL_SIZE = 34
@@ -145,9 +145,9 @@ local CROSSHAIR_NORMAL_SIZE = 34
 local CROUCH_WALK_SPEED = 9
 local PRONE_WALK_SPEED  = 4
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  STATE
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local playing          = false
 local firstPerson      = false
 local characterOnRight = false
@@ -164,7 +164,7 @@ local normalJumpPower = 50
 
 local isSprinting = false
 local isADS       = false
-local hasWeapon   = false  -- อัพเดตอัตโนมัติจาก EquipUpdate
+local hasWeapon   = false  -- เธญเธฑเธเน€เธ”เธ•เธญเธฑเธ•เนเธเธกเธฑเธ•เธดเธเธฒเธ EquipUpdate
 
 -- Animation
 local CROUCH_ANIMATION_ID = ""
@@ -173,9 +173,9 @@ local crouchTrack, proneTrack
 
 local getBaseWalkSpeed   -- forward declaration
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  รับสถานะอาวุธจาก Server (ADS ใช้ได้เฉพาะตอนถือปืน)
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  เธฃเธฑเธเธชเธ–เธฒเธเธฐเธญเธฒเธงเธธเธเธเธฒเธ Server (ADS เนเธเนเนเธ”เนเน€เธเธเธฒเธฐเธ•เธญเธเธ–เธทเธญเธเธทเธ)
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local ItemDatabase     = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 local EquipUpdateEvent = ReplicatedStorage:WaitForChild("EquipUpdate")
 
@@ -187,9 +187,9 @@ EquipUpdateEvent.OnClientEvent:Connect(function(_slotName, itemId)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  SPRINGS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local heightSpring    = Spring.new(0, 12, 1)           -- camera height offset
 local fovSpring       = Spring.new(FOV_NORMAL, 8, 1)   -- field of view
 local shoulderSpring  = Spring.new(TP_SHOULDER, 10, 1)  -- shoulder offset L/R
@@ -197,9 +197,9 @@ local distanceSpring  = Spring.new(TP_DISTANCE, 8, 1)   -- camera distance (3rd)
 local tiltSpring      = Spring.new(0, 10, 1)            -- head tilt roll
 local crosshairSpring = Spring.new(CROSSHAIR_NORMAL_SIZE, 12, 1) -- crosshair size
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  UTILITY
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function showModeText(text)
 	modeText.Text = text
 	task.delay(1.3, function()
@@ -228,13 +228,13 @@ end
 
 local function lockMouse()
 	if isInventoryOpen() then return end
-	UserInputService.MouseBehavior  = Enum.MouseBehavior.LockCenter
+	UserInputService.MouseBehavior    = Enum.MouseBehavior.LockCenter
 	UserInputService.MouseIconEnabled = false
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  ANIMATION
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function loadAnimation(animationId)
 	if animationId == "" or not humanoid then return nil end
 
@@ -258,9 +258,9 @@ local function stopStanceAnimations()
 	if proneTrack  and proneTrack.IsPlaying  then proneTrack:Stop(0.15)  end
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  CHARACTER SETUP
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function setupCharacter(character)
 	local readyCharacter = character
 	local deadline = os.clock() + 10
@@ -298,7 +298,7 @@ local function setupCharacter(character)
 
 	humanoid.AutoRotate = false
 
-	-- เริ่มต้นกล้องจากทิศทางตัวละคร
+	-- เน€เธฃเธดเนเธกเธ•เนเธเธเธฅเนเธญเธเธเธฒเธเธ—เธดเธจเธ—เธฒเธเธ•เธฑเธงเธฅเธฐเธเธฃ
 	local _, startYaw, _ = rootPart.CFrame:ToOrientation()
 	yaw   = startYaw
 	pitch = 0
@@ -314,9 +314,9 @@ local function setupCharacter(character)
 	setFirstPersonVisibility(firstPerson)
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  STANCE SYSTEM
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 function getBaseWalkSpeed()
 	if stance == "Crouch" then return CROUCH_WALK_SPEED
 	elseif stance == "Prone" then return PRONE_WALK_SPEED
@@ -355,22 +355,26 @@ local function setStance(newStance)
 		showModeText("PRONE")
 	end
 
-	-- Sprint หยุดเมื่อย่อ/หมอบ
+	-- Sprint เธซเธขเธธเธ”เน€เธกเธทเนเธญเธขเนเธญ/เธซเธกเธญเธ
 	if stance ~= "Stand" then
 		isSprinting = false
 	end
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  MOUSE INPUT
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 UserInputService.InputChanged:Connect(function(input)
 	if not playing then return end
+	
+	_G.CameraPitch = pitch
+	_G.IsADS       = isADS
+
 	if isInventoryOpen() then return end
 
 	if input.UserInputType == Enum.UserInputType.MouseMovement then
 		local sens = MOUSE_SENSITIVITY
-		-- ADS ลด sensitivity เล็กน้อย
+		-- ADS เธฅเธ” sensitivity เน€เธฅเนเธเธเนเธญเธข
 		if isADS then sens = sens * 0.7 end
 
 		yaw   = yaw   - input.Delta.X * sens
@@ -379,62 +383,66 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  KEY INPUT
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed or not playing then return end
 	if isInventoryOpen() then return end
 
-	-- V = สลับ First/Third Person
+	-- V = เธชเธฅเธฑเธ First/Third Person
 	if input.KeyCode == Enum.KeyCode.V then
 		firstPerson = not firstPerson
 		setFirstPersonVisibility(firstPerson)
 		showModeText(firstPerson and "FIRST PERSON" or "THIRD PERSON")
 	end
 
-	-- E = สลับไหล่ (Third Person เท่านั้น)
+	-- E = เธชเธฅเธฑเธเนเธซเธฅเน (Third Person เน€เธ—เนเธฒเธเธฑเนเธ)
 	if input.KeyCode == Enum.KeyCode.E and not firstPerson then
 		characterOnRight = not characterOnRight
-		-- Spring จะ tween ไปตำแหน่งใหม่
+		-- Spring เธเธฐ tween เนเธเธ•เธณเนเธซเธเนเธเนเธซเธกเน
 		shoulderSpring.Target = characterOnRight and -TP_SHOULDER or TP_SHOULDER
 		showModeText(characterOnRight and "RIGHT SHOULDER" or "LEFT SHOULDER")
 	end
 
-	-- C = ย่อ / ลุก
+	-- C = เธขเนเธญ / เธฅเธธเธ
 	if input.KeyCode == Enum.KeyCode.C then
 		setStance(stance == "Crouch" and "Stand" or "Crouch")
 	end
 
-	-- Z = หมอบ / ลุก
+	-- Z = เธซเธกเธญเธ / เธฅเธธเธ
 	if input.KeyCode == Enum.KeyCode.Z then
 		setStance(stance == "Prone" and "Stand" or "Prone")
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  MAIN CAMERA RENDER STEP
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value + 1, function(dt)
 	if not playing or not rootPart or not humanoid or humanoid.Health <= 0 then
 		return
 	end
 
-	-- Inventory เปิด  หยุดกล้อง
+	-- Inventory เน€เธเธดเธ” โ’ เธซเธขเธธเธ”เธเธฅเนเธญเธ
 	if isInventoryOpen() then
 		crosshair.Visible = false
-		return
+		-- return
 	else
 		crosshair.Visible = true
 	end
+
+	-- เธญเธฑเธเน€เธ”เธ• pitch เธ—เธธเธเน€เธเธฃเธก (AnimationController เธญเนเธฒเธเธเธฒเธเธเธฅเนเธญเธเนเธ”เธขเธ•เธฃเธเธญเธขเธนเนเนเธฅเนเธง)
+	_G.CameraPitch = pitch
+	_G.IsADS = isADS
 
 	local camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable
 	lockMouse()
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-	-- SPRINT (Shift ค้าง + กำลังเดิน + ยืน)
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+	-- SPRINT (Shift เธเนเธฒเธ + เธเธณเธฅเธฑเธเน€เธ”เธดเธ + เธขเธทเธ)
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	local shiftHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
 	local isMoving  = humanoid.MoveDirection.Magnitude > 0.1
 	local canSprint = (stance == "Stand") and not isADS
@@ -451,15 +459,15 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 		end
 	end
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-	-- ADS (คลิกขวาค้าง)
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+	-- ADS (เธเธฅเธดเธเธเธงเธฒเธเนเธฒเธ)
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	local rmbHeld = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
 
 	if rmbHeld and not isSprinting and hasWeapon then
 		if not isADS then
 			isADS = true
-			-- ลดความเร็วเดิน
+			-- เธฅเธ”เธเธงเธฒเธกเน€เธฃเนเธงเน€เธ”เธดเธ
 			if not isSprinting then
 				humanoid.WalkSpeed = getBaseWalkSpeed() * ADS_WALK_MULT
 			end
@@ -471,9 +479,9 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 		end
 	end
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-	-- SPRING TARGETS (อัพเดตเป้าหมายของ springs)
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+	-- SPRING TARGETS (เธญเธฑเธเน€เธ”เธ•เน€เธเนเธฒเธซเธกเธฒเธขเธเธญเธ springs)
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 
 	-- FOV
 	if isADS then
@@ -484,7 +492,7 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 		fovSpring.Target = FOV_NORMAL
 	end
 
-	-- Distance (3rd person — ADS เข้าใกล้)
+	-- Distance (3rd person โ€” ADS เน€เธเนเธฒเนเธเธฅเน)
 	if isADS and not firstPerson then
 		distanceSpring.Target = TP_DISTANCE * ADS_DISTANCE_MULT
 	else
@@ -498,11 +506,11 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 		crosshairSpring.Target = CROSSHAIR_NORMAL_SIZE
 	end
 
-	-- (Head tilt ถูกปิด — เมาหัว)
+	-- (Head tilt เธ–เธนเธเธเธดเธ” โ€” เน€เธกเธฒเธซเธฑเธง)
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	-- UPDATE SPRINGS
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	local smoothHeight    = heightSpring:Update(dt)
 	local smoothFOV       = fovSpring:Update(dt)
 	local smoothShoulder  = shoulderSpring:Update(dt)
@@ -517,25 +525,25 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 	local cs = math.floor(smoothCrosshair + 0.5)
 	crosshair.Size = UDim2.fromOffset(cs, cs)
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	-- CHARACTER ROTATION
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	if not isInventoryOpen() then
 		rootPart.CFrame = CFrame.new(rootPart.Position) * CFrame.Angles(0, yaw, 0)
 	end
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	-- CAMERA ROTATION (yaw + pitch + tilt)
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	local rotation = CFrame.Angles(0, yaw, 0)
 		* CFrame.Angles(pitch, 0, 0)
 		* CFrame.Angles(0, 0, smoothTilt)
 
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	-- CAMERA POSITION
-	-- ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+	-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 	if firstPerson then
-		-- อออ FIRST PERSON อออ
+		-- โ•โ•โ• FIRST PERSON โ•โ•โ•
 		local camPos
 		if head then
 			camPos = head.Position
@@ -549,7 +557,7 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 			* CFrame.Angles(0, 0, smoothTilt)
 
 	else
-		-- อออ THIRD PERSON อออ
+		-- โ•โ•โ• THIRD PERSON โ•โ•โ•
 		local focusPos = rootPart.Position + Vector3.new(0, TP_HEIGHT + smoothHeight, 0)
 
 		local desiredPos = (
@@ -560,7 +568,7 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 
 		local lookTarget = focusPos + rotation.LookVector * 100
 
-		-- Wall collision (ป้องกันกล้องทะลุกำแพง)
+		-- Wall collision (เธเนเธญเธเธเธฑเธเธเธฅเนเธญเธเธ—เธฐเธฅเธธเธเธณเนเธเธ)
 		local rayDir = desiredPos - focusPos
 		local rayParams = RaycastParams.new()
 		rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -576,9 +584,9 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  STARTUP
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 startGameplayEvent.OnClientEvent:Connect(function()
 	local character = player.Character or player.CharacterAdded:Wait()
 	setupCharacter(character)
@@ -587,17 +595,17 @@ startGameplayEvent.OnClientEvent:Connect(function()
 	crosshairGui.Enabled = true
 	lockMouse()
 
-	showModeText("THIRD PERSON • V: FIRST PERSON • E: SHOULDER")
+	showModeText("THIRD PERSON โ€ข V: FIRST PERSON โ€ข E: SHOULDER")
 end)
 
--- กรณีตายแล้วเกิดใหม่
+-- เธเธฃเธ“เธตเธ•เธฒเธขเนเธฅเนเธงเน€เธเธดเธ”เนเธซเธกเน
 player.CharacterAdded:Connect(function(character)
 	if playing then
 		setupCharacter(character)
 	end
 end)
 
--- หมุนไอเทมกลางแมพฝั่ง client (ไม่กิน bandwidth)
+-- เธซเธกเธธเธเนเธญเน€เธ—เธกเธเธฅเธฒเธเนเธกเธเธเธฑเนเธ client (เนเธกเนเธเธดเธ bandwidth)
 RunService.Heartbeat:Connect(function(dt)
 	local folder = workspace:FindFirstChild("ItemSpawns")
 	if not folder then return end
@@ -608,20 +616,21 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  ส่งสถานะ ADS + pitch ไป server (ให้จัดท่าถือปืน)
--- อออออออออออออออออออออออออออออออออออออออออออออออ
-local WeaponStateEvent = ReplicatedStorage:FindFirstChild("WeaponState")
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  เธชเนเธเธชเธ–เธฒเธเธฐ ADS + pitch เนเธ server (เนเธซเนเธเธฑเธ”เธ—เนเธฒเธ–เธทเธญเธเธทเธ)
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+local WeaponStateEvent = ReplicatedStorage:WaitForChild("WeaponState", 10)
 local lastSentADS, lastSentPitch, stateAccum = nil, 0, 0
+local STATE_SEND_INTERVAL = 0.055 -- ~18 เธเธฃเธฑเนเธ/เธงเธดเธเธฒเธ—เธต
+local STATE_PITCH_THRESHOLD = 0.05 -- เธฃadians (~3ยฐ)
 
 RunService.Heartbeat:Connect(function(dt)
 	if not playing or not WeaponStateEvent then return end
 	stateAccum = stateAccum + dt
-	if stateAccum < 0.08 then return end   -- ส่ง ~12 ครั้ง/วินาที พอ
+	if stateAccum < STATE_SEND_INTERVAL then return end
 	stateAccum = 0
 
-	-- ส่งเมื่อสถานะเปลี่ยน หรือก้มเงยเกิน 5 องศา
-	if isADS ~= lastSentADS or math.abs(pitch - lastSentPitch) > 0.09 then
+	if isADS ~= lastSentADS or math.abs(pitch - lastSentPitch) > STATE_PITCH_THRESHOLD then
 		lastSentADS   = isADS
 		lastSentPitch = pitch
 		WeaponStateEvent:FireServer(isADS, pitch)

@@ -1,10 +1,13 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
--- ‰¡Ë„ÀÈºŸÈ‡≈Ëπ‡°‘¥∑—π∑’‡¡◊ËÕ‡¢È“‡°¡
+local AvatarStandardizer = require(ServerScriptService:WaitForChild("AvatarStandardizer"))
+
+-- ‡πÑ‡∏°‡πà‡πÉ‡∏´‡πâ‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô‡πÄ‡∏Å‡∏¥‡∏î‡∏ó‡∏±‡∏ô‡∏ó‡∏µ‡πÄ‡∏°‡∏∑‡πà‡∏≠‡πÄ‡∏Ç‡πâ‡∏≤‡πÄ‡∏Å‡∏°
 Players.CharacterAutoLoads = false
 
---  √È“ßÀ√◊Õ¥÷ß RemoteEvent Õ¬Ë“ßª≈Õ¥¿—¬
+-- ‡∏™‡∏£‡πâ‡∏≤‡∏á‡∏´‡∏£‡∏∑‡∏≠‡∏î‡∏∂‡∏á RemoteEvent ‡∏≠‡∏¢‡πà‡∏≤‡∏á‡∏õ‡∏•‡∏≠‡∏î‡∏†‡∏±‡∏¢
 local function getRemoteEvent(name)
 	local event = ReplicatedStorage:FindFirstChild(name)
 
@@ -20,14 +23,15 @@ end
 local playEvent = getRemoteEvent("PlayGame")
 local startGameplayEvent = getRemoteEvent("StartGameplay")
 
--- √—∫§” —Ëß®“°ªÿË¡ PLAY
+-- ‡∏£‡∏±‡∏ö‡∏Ñ‡∏≥‡∏™‡∏±‡πà‡∏á‡∏à‡∏≤‡∏Å‡∏õ‡∏∏‡πà‡∏° PLAY
 playEvent.OnServerEvent:Connect(function(player)
-	-- ∂È“¬—ß‰¡Ë¡’µ—«≈–§√ „ÀÈ Spawn
+	-- ‡∏ñ‡πâ‡∏≤‡∏¢‡∏±‡∏á‡πÑ‡∏°‡πà‡∏°‡∏µ‡∏ï‡∏±‡∏ß‡∏•‡∏∞‡∏Ñ‡∏£ ‡πÉ‡∏´‡πâ Spawn ‡∏î‡πâ‡∏ß‡∏¢ avatar ‡∏°‡∏≤‡∏ï‡∏£‡∏ê‡∏≤‡∏ô
 	if not player.Character then
-		player:LoadCharacter()
+		local desc = AvatarStandardizer.GetHumanoidDescriptionForPlayer(player)
+		player:LoadCharacterWithHumanoidDescription(desc)
 	end
 
-	-- √Õ„ÀÈµ—«≈–§√¡“µ√∞“π∂Ÿ°µ‘¥µ—Èß‡ √Á®°ËÕπ Ëß —≠≠“≥‡√‘Ë¡‡°¡
+	-- ‡∏£‡∏≠‡πÉ‡∏´‡πâ‡∏ï‡∏±‡∏ß‡∏•‡∏∞‡∏Ñ‡∏£‡∏°‡∏≤‡∏ï‡∏£‡∏ê‡∏≤‡∏ô‡∏ñ‡∏π‡∏Å‡∏ï‡∏¥‡∏î‡∏ï‡∏±‡πâ‡∏á‡πÄ‡∏™‡∏£‡πá‡∏à‡∏Å‡πà‡∏≠‡∏ô‡∏™‡πà‡∏á‡∏™‡∏±‡∏ç‡∏ç‡∏≤‡∏ì‡πÄ‡∏£‡∏¥‡πà‡∏°‡πÄ‡∏Å‡∏°
 	local character = player.Character or player.CharacterAdded:Wait()
 	local deadline = os.clock() + 10
 	while character and os.clock() < deadline do

@@ -1,0 +1,229 @@
+--------------------------------------------------------------
+-- ItemSpawner.lua  (Script)
+-- วางใน: ServerScriptService
+--
+-- วางไอเทมกลางแมพ ให้ผู้เล่นเดินเก็บ
+-- ใช้ Folder "ItemSpawns" ใน Workspace
+-- Part ตั้งชื่อ: ItemSpawn_{itemId}  (เช่น ItemSpawn_pistol)
+--------------------------------------------------------------
+
+local Players           = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService        = game:GetService("RunService")
+local Debris            = game:GetService("Debris")
+
+-- ═══════════════════════════════════════════════
+--  โหลด Dependencies
+-- ═══════════════════════════════════════════════
+local ItemDatabase = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
+
+-- รอให้ InventoryManager โหลดก่อน
+task.wait(1)
+
+-- ═══════════════════════════════════════════════
+--  REMOTE EVENTS / BINDABLE EVENTS
+-- ═══════════════════════════════════════════════
+local PickupItemEvent = ReplicatedStorage:WaitForChild("PickupItem")
+
+-- สร้าง BindableEvent สำหรับรับ dropped items
+local SpawnDroppedItem = ReplicatedStorage:FindFirstChild("SpawnDroppedItem")
+if not SpawnDroppedItem then
+	SpawnDroppedItem = Instance.new("BindableEvent")
+	SpawnDroppedItem.Name = "SpawnDroppedItem"
+	SpawnDroppedItem.Parent = ReplicatedStorage
+end
+
+-- ═══════════════════════════════════════════════
+--  CONSTANTS
+-- ═══════════════════════════════════════════════
+local PICKUP_DISTANCE  = 15     -- ระยะเก็บสูงสุด (studs)
+local RESPAWN_TIME     = 30     -- วินาทีก่อน respawn
+local HOVER_HEIGHT     = 1.5    -- ลอยเหนือพื้น
+local ROTATION_SPEED   = 1      -- ความเร็วหมุน (radian/s)
+
+-- ═══════════════════════════════════════════════
+--  ITEM SPAWNS FOLDER
+-- ═══════════════════════════════════════════════
+local itemSpawnsFolder = workspace:FindFirstChild("ItemSpawns")
+if not itemSpawnsFolder then
+	itemSpawnsFolder = Instance.new("Folder")
+	itemSpawnsFolder.Name = "ItemSpawns"
+	itemSpawnsFolder.Parent = workspace
+end
+
+-- ═══════════════════════════════════════════════
+--  ตกแต่ง Part ให้เป็น Pickup
+-- ═══════════════════════════════════════════════
+local function setupPickupVisual(part, itemData)
+	local rarityColor = ItemDatabase.GetRarityColor(itemData.Rarity or "Common")
+	part.Color = rarityColor
+	part.Material = Enum.Material.Neon
+	part.Transparency = 0.3
+	part.CanCollide = false
+	part.Anchored = true
+	part.Size = Vector3.new(1.5, 1.5, 1.5)
+
+	-- PointLight (เรืองแสง)
+	if not part:FindFirstChildOfClass("PointLight") then
+		local light = Instance.new("PointLight")
+		light.Color = rarityColor
+		light.Brightness = 1.5
+		light.Range = 10
+		light.Parent = part
+	end
+
+	-- BillboardGui (ชื่อไอเทมลอยเหนือ Part)
+	local existingGui = part:FindFirstChild("ItemBillboard")
+	if existingGui then existingGui:Destroy() end
+
+	-- ลบ BillboardGui เก่า "ทุกอัน" (กันซ้อนจาก script อื่น)
+	for _, child in ipairs(part:GetChildren()) do
+		if child:IsA("BillboardGui") then child:Destroy() end
+	end
+
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(1, 0, 1, 0)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Text = itemData.Name
+	nameLabel.TextColor3 = rarityColor
+	nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	nameLabel.TextStrokeTransparency = 0.3
+	nameLabel.Font = Enum.Font.GothamBold
+	nameLabel.TextScaled = true
+	nameLabel.Parent = billboard
+end
+
+-- ═══════════════════════════════════════════════
+--  INITIALIZE ทุก Part ใน ItemSpawns
+-- ═══════════════════════════════════════════════
+local spawnPoints = {}
+
+local function initializeSpawn(part)
+	local itemId = string.match(part.Name, "ItemSpawn_(.+)")
+	if not itemId then return end
+
+	local itemData = ItemDatabase.GetItem(itemId)
+	if not itemData then
+		warn("[ItemSpawner] ไม่พบ itemId:", itemId)
+		return
+	end
+
+	spawnPoints[part] = part.Position
+	setupPickupVisual(part, itemData)
+	print("[ItemSpawner] Initialized:", itemData.Name)
+end
+
+for _, part in ipairs(itemSpawnsFolder:GetChildren()) do
+	if part:IsA("BasePart") then
+		initializeSpawn(part)
+	end
+end
+
+itemSpawnsFolder.ChildAdded:Connect(function(child)
+	if child:IsA("BasePart") then
+		task.wait(0.1)
+		if child:GetAttribute("IsDrop") then return end  -- drop จัดการ visual เองแล้ว
+		initializeSpawn(child)
+	end
+end)
+
+-- ═══════════════════════════════════════════════
+--  ROTATION (หมุนช้าๆ)
+-- ═══════════════════════════════════════════════
+
+-- ═══════════════════════════════════════════════
+--  PICKUP HANDLER (กด F เก็บของ)
+-- ═══════════════════════════════════════════════
+PickupItemEvent.OnServerEvent:Connect(function(player, part)
+	if not part or not part:IsA("BasePart") then return end
+	if not part:IsDescendantOf(itemSpawnsFolder) then return end
+	if part.Transparency >= 1 then return end  -- ถูกเก็บไปแล้ว
+
+	local itemId = string.match(part.Name, "ItemSpawn_(.+)")
+	if not itemId then return end
+
+	local itemData = ItemDatabase.GetItem(itemId)
+	if not itemData then return end
+
+	-- เช็คระยะ
+	local character = player.Character
+	if not character then return end
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if not rootPart then return end
+
+	if (rootPart.Position - part.Position).Magnitude > PICKUP_DISTANCE then return end
+
+	-- กำหนดจำนวน + กระสุน
+	local isDrop   = part:GetAttribute("IsDrop") == true
+	local quantity, ammo
+
+	if isDrop then
+		quantity = part:GetAttribute("Quantity") or 1
+		ammo     = part:GetAttribute("Ammo") or 0
+	else
+		quantity = (ItemDatabase.IsStackable(itemId) and itemData.StackSize) or 1
+		ammo     = part:GetAttribute("SpawnAmmo") or itemData.SpawnWithAmmo or 0
+	end
+
+	if not _G.InventoryManager then
+		warn("[ItemSpawner] InventoryManager ยังไม่โหลด!")
+		return
+	end
+
+	local success, err = _G.InventoryManager.AddItem(player, itemId, quantity, ammo)
+	if not success then
+		warn("[ItemSpawner] เก็บไม่ได้:", err)
+		return
+	end
+
+	print("[ItemSpawner]", player.Name, "picked up", itemData.Name)
+
+	-- ของทิ้ง/ของตาย → ลบถาวร ไม่ respawn
+	if isDrop then
+		part:Destroy()
+		return
+	end
+
+	-- Spawner ประจำแมพ → ซ่อนแล้ว respawn
+	local savedPos = part.Position
+	part.Transparency = 1
+	local billboard = part:FindFirstChild("ItemBillboard")
+	if billboard then billboard.Enabled = false end
+	local light = part:FindFirstChildOfClass("PointLight")
+	if light then light.Enabled = false end
+
+	task.delay(RESPAWN_TIME, function()
+		if part and part.Parent then
+			part.Position     = savedPos
+			part.Transparency = 0.3
+			if billboard then billboard.Enabled = true end
+			if light then light.Enabled = true end
+		end
+	end)
+end)
+
+-- ═══════════════════════════════════════════════
+--  DROPPED ITEM (ทิ้งของ)
+-- ═══════════════════════════════════════════════
+SpawnDroppedItem.Event:Connect(function(itemId, position, quantity, ammo)
+	local itemData = ItemDatabase.GetItem(itemId)
+	if not itemData then return end
+
+	local part = Instance.new("Part")
+	part.Name       = "ItemSpawn_" .. itemId
+	part.Position   = position + Vector3.new(0, HOVER_HEIGHT, 0)
+	part.Anchored   = true
+	part.CanCollide = false
+
+	-- ⚠️ ทำเครื่องหมายว่าเป็นของทิ้ง/ของตาย → เก็บแล้วหายถาวร ไม่ respawn
+	part:SetAttribute("IsDrop",   true)
+	part:SetAttribute("Quantity", quantity or 1)
+	part:SetAttribute("Ammo",     ammo or 0)
+
+	part.Parent = itemSpawnsFolder
+	setupPickupVisual(part, itemData)
+
+	Debris:AddItem(part, 180)   -- ของหายเองใน 3 นาที กัน Part ท่วมแมพ
+end)
+
+print("[ItemSpawner] Ready —", #itemSpawnsFolder:GetChildren(), "spawn points")

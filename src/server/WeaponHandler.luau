@@ -1,9 +1,9 @@
 --------------------------------------------------------------
 -- WeaponHandler.lua  (Script)
--- วางใน: ServerScriptService
+-- เธงเธฒเธเนเธ: ServerScriptService
 --
--- ยิง / Melee / Damage / Armor / Headshot / Anti-cheat
--- v2 — Raycast projectile, server-authoritative origin, reload lock
+-- เธขเธดเธ / Melee / Damage / Armor / Headshot / Anti-cheat
+-- v2 โ€” Raycast projectile, server-authoritative origin, reload lock
 --------------------------------------------------------------
 
 local Players           = game:GetService("Players")
@@ -13,11 +13,11 @@ local Debris            = game:GetService("Debris")
 
 local ItemDatabase = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 
-task.wait(1) -- รอ InventoryManager
+task.wait(1) -- เธฃเธญ InventoryManager
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  REMOTE EVENTS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function createRemote(name)
 	local r = ReplicatedStorage:FindFirstChild(name)
 	if not r then
@@ -31,28 +31,52 @@ end
 local ShootEvent    = createRemote("ShootWeapon")
 local MeleeEvent    = createRemote("MeleeAttack")
 local ReloadEvent   = createRemote("ReloadWeapon")
-local HitMarkerEvent = createRemote("HitMarker")   -- Server  Client (feedback)
+local HitMarkerEvent = createRemote("HitMarker")   -- Server โ’ Client (feedback)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+local WeaponStateEvent = createRemote("WeaponState")   -- Client โ’ Server (ADS + pitch)
+
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  WEAPON STATE โ€” เธฃเธฑเธ ADS/pitch เธเธฒเธ client เนเธฅเนเธง replicate
+--  เธเนเธฒเธ character attribute (client เธญเธทเนเธเธญเนเธฒเธเนเธ”เนเธญเธฑเธ•เนเธเธกเธฑเธ•เธด)
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+local lastStateAt = {}
+
+WeaponStateEvent.OnServerEvent:Connect(function(player, isADS, pitch)
+	if typeof(isADS) ~= "boolean" then return end
+	if typeof(pitch) ~= "number" or pitch ~= pitch then return end   -- เธเธฑเธ NaN
+
+	-- rate limit ~15 เธเธฃเธฑเนเธ/เธงเธดเธเธฒเธ—เธต
+	local now = os.clock()
+	if now - (lastStateAt[player.UserId] or 0) < 0.06 then return end
+	lastStateAt[player.UserId] = now
+
+	local character = player.Character
+	if not character then return end
+
+	character:SetAttribute("ADS",      isADS)
+	character:SetAttribute("AimPitch", math.clamp(pitch, -1.35, 1.35))
+end)
+
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  CONSTANTS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local MAX_BULLET_RANGE = 600
-local MAX_STEP         = 25    -- cap ระยะต่อเฟรม กัน lag spike ทะลุกำแพง
+local MAX_STEP         = 25    -- cap เธฃเธฐเธขเธฐเธ•เนเธญเน€เธเธฃเธก เธเธฑเธ lag spike เธ—เธฐเธฅเธธเธเธณเนเธเธ
 local HEADSHOT_MULT    = 2
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  ANTI-CHEAT STATE
--- อออออออออออออออออออออออออออออออออออออออออออออออ
-local playerCooldowns = {}   -- [UserId] = timestamp ยิงล่าสุด
-local reloadingUntil  = {}   -- [UserId] = timestamp reload เสร็จ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+local playerCooldowns = {}   -- [UserId] = timestamp เธขเธดเธเธฅเนเธฒเธชเธธเธ”
+local reloadingUntil  = {}   -- [UserId] = timestamp reload เน€เธชเธฃเนเธ
 
 local function canFire(player, fireRate)
-	-- กำลัง reload  ยิงไม่ได้
+	-- เธเธณเธฅเธฑเธ reload โ’ เธขเธดเธเนเธกเนเนเธ”เน
 	if (reloadingUntil[player.UserId] or 0) > os.clock() then return false end
 
 	local lastFire = playerCooldowns[player.UserId] or 0
 	local now      = os.clock()
-	if now - lastFire >= (fireRate or 0.5) * 0.9 then  -- เผื่อ ping 10%
+	if now - lastFire >= (fireRate or 0.5) * 0.9 then  -- เน€เธเธทเนเธญ ping 10%
 		playerCooldowns[player.UserId] = now
 		return true
 	end
@@ -60,13 +84,14 @@ local function canFire(player, fireRate)
 end
 
 Players.PlayerRemoving:Connect(function(player)
+	lastStateAt[player.UserId] = nil
 	playerCooldowns[player.UserId] = nil
 	reloadingUntil[player.UserId]  = nil
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  DAMAGE GATE (PvP + PvE)
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function canDamage(attackerChar, victimChar)
 	if not attackerChar or not victimChar then return false end
 	if attackerChar == victimChar then return false end
@@ -74,14 +99,14 @@ local function canDamage(attackerChar, victimChar)
 	local aTeam = attackerChar:GetAttribute("Team") or "Player"
 	local vTeam = victimChar:GetAttribute("Team")  or "Player"
 
-	-- NPC ฝ่ายเดียวกันไม่ทำร้ายกันเอง / Player ยิงได้ทุกอย่าง
+	-- NPC เธเนเธฒเธขเน€เธ”เธตเธขเธงเธเธฑเธเนเธกเนเธ—เธณเธฃเนเธฒเธขเธเธฑเธเน€เธญเธ / Player เธขเธดเธเนเธ”เนเธ—เธธเธเธญเธขเนเธฒเธ
 	if aTeam == vTeam and aTeam ~= "Player" then return false end
 	return true
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  DAMAGE CALC — Armor + Headshot
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  DAMAGE CALC โ€” Armor + Headshot
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function resolveDamage(attacker, hitPart, baseDamage)
 	if not hitPart then return false end
 
@@ -95,7 +120,7 @@ local function resolveDamage(attacker, hitPart, baseDamage)
 	local isHead = (hitPart.Name == "Head")
 	local dmg    = isHead and (baseDamage * HEADSHOT_MULT) or baseDamage
 
-	-- ลด damage ตาม equipment ของเหยื่อ
+	-- เธฅเธ” damage เธ•เธฒเธก equipment เธเธญเธเน€เธซเธขเธทเนเธญ
 	local victim = Players:GetPlayerFromCharacter(model)
 	if victim and _G.InventoryManager then
 		local inv = _G.InventoryManager.GetInventory(victim)
@@ -122,14 +147,14 @@ local function resolveDamage(attacker, hitPart, baseDamage)
 	hum:TakeDamage(dmg)
 	HitMarkerEvent:FireClient(attacker, isHead, math.floor(dmg + 0.5))
 
-	print(string.format("[WeaponHandler] %s  %s  %.1f dmg%s",
+	print(string.format("[WeaponHandler] %s โ’ %s  %.1f dmg%s",
 		attacker.Name, model.Name, dmg, isHead and "  (HEADSHOT)" or ""))
 	return true
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  PROJECTILE — Raycast แบบเดินทีละ step
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  PROJECTILE โ€” Raycast เนเธเธเน€เธ”เธดเธเธ—เธตเธฅเธฐ step
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function createProjectile(player, itemData, origin, direction)
 	local speed    = itemData.ProjectileSpeed or 400
 	local traveled = 0
@@ -183,7 +208,7 @@ local function createProjectile(player, itemData, origin, direction)
 	end)
 end
 
--- กระจายทิศทางตาม Spread (องศา)
+-- เธเธฃเธฐเธเธฒเธขเธ—เธดเธจเธ—เธฒเธเธ•เธฒเธก Spread (เธญเธเธจเธฒ)
 local function applySpread(direction, spreadDeg)
 	if not spreadDeg or spreadDeg <= 0 then return direction end
 	local rad = math.rad(spreadDeg)
@@ -196,9 +221,9 @@ local function applySpread(direction, spreadDeg)
 	return cf.LookVector
 end
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  EVENT: ยิงปืน
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  EVENT: เธขเธดเธเธเธทเธ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 ShootEvent.OnServerEvent:Connect(function(player, aimPoint)
 	if typeof(aimPoint) ~= "Vector3" then return end
 	if not _G.InventoryManager then return end
@@ -212,7 +237,7 @@ ShootEvent.OnServerEvent:Connect(function(player, aimPoint)
 
 	if not canFire(player, itemData.FireRate) then return end
 
-	-- หักกระสุน (server เป็นคนตัดสิน)
+	-- เธซเธฑเธเธเธฃเธฐเธชเธธเธ (server เน€เธเนเธเธเธเธ•เธฑเธ”เธชเธดเธ)
 	local ok = _G.InventoryManager.UseAmmo(player)
 	if not ok then return end
 
@@ -221,11 +246,11 @@ ShootEvent.OnServerEvent:Connect(function(player, aimPoint)
 	local root = character:FindFirstChild("HumanoidRootPart")
 	if not root then return end
 
-	-- ?? Server คำนวณจุดยิงเอง ห้ามเชื่อ client
+	-- โ ๏ธ Server เธเธณเธเธงเธ“เธเธธเธ”เธขเธดเธเน€เธญเธ เธซเนเธฒเธกเน€เธเธทเนเธญ client
 	local origin = root.Position + Vector3.new(0, 1.5, 0)
 	local delta  = aimPoint - origin
 	if delta.Magnitude < 0.1 then return end
-	if delta.Magnitude > MAX_BULLET_RANGE * 1.5 then return end  -- กัน aim ข้ามแมพ
+	if delta.Magnitude > MAX_BULLET_RANGE * 1.5 then return end  -- เธเธฑเธ aim เธเนเธฒเธกเนเธกเธ
 	local dir = delta.Unit
 
 	if itemData.Subtype == "Shotgun" then
@@ -237,9 +262,9 @@ ShootEvent.OnServerEvent:Connect(function(player, aimPoint)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  EVENT: Melee
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 MeleeEvent.OnServerEvent:Connect(function(player)
 	if not _G.InventoryManager then return end
 
@@ -269,7 +294,7 @@ MeleeEvent.OnServerEvent:Connect(function(player)
 		if model and not damaged[model] then
 			local hum = model:FindFirstChildOfClass("Humanoid")
 			if hum and hum.Health > 0 and canDamage(character, model) then
-				-- ต้องหันหน้าไปทางเป้าหมาย (กันฟันคนข้างหลัง)
+				-- เธ•เนเธญเธเธซเธฑเธเธซเธเนเธฒเนเธเธ—เธฒเธเน€เธเนเธฒเธซเธกเธฒเธข (เธเธฑเธเธเธฑเธเธเธเธเนเธฒเธเธซเธฅเธฑเธ)
 				local toTarget = model:GetPivot().Position - rootPart.Position
 				if toTarget.Magnitude > 0.1 then
 					local dot = rootPart.CFrame.LookVector:Dot(toTarget.Unit)
@@ -283,18 +308,18 @@ MeleeEvent.OnServerEvent:Connect(function(player)
 	end
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  EVENT: Reload
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 ReloadEvent.OnServerEvent:Connect(function(player)
 	if not _G.InventoryManager then return end
-	if (reloadingUntil[player.UserId] or 0) > os.clock() then return end  -- กันสแปม
+	if (reloadingUntil[player.UserId] or 0) > os.clock() then return end  -- เธเธฑเธเธชเนเธเธก
 
 	local success, newAmmo, reloadTime = _G.InventoryManager.Reload(player)
 	if success then
 		reloadingUntil[player.UserId] = os.clock() + (reloadTime or 2)
-		print("[WeaponHandler]", player.Name, "reloading ", newAmmo)
+		print("[WeaponHandler]", player.Name, "reloading โ’", newAmmo)
 	end
 end)
 
-print("[WeaponHandler] Ready (v2 — raycast + server-auth)")
+print("[WeaponHandler] Ready (v2 โ€” raycast + server-auth)")

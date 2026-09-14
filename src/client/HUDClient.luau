@@ -1,6 +1,6 @@
 --------------------------------------------------------------
--- HUDClient.lua  (LocalScript — StarterPlayerScripts)
--- HP bar + Ammo + ชื่ออาวุธ + Hitmarker + Damage flash
+-- HUDClient.lua  (LocalScript โ€” StarterPlayerScripts)
+-- HP bar + Ammo + เธเธทเนเธญเธญเธฒเธงเธธเธ + Hitmarker + Damage flash
 --------------------------------------------------------------
 
 local Players           = game:GetService("Players")
@@ -17,16 +17,16 @@ local EquipUpdateEvent   = ReplicatedStorage:WaitForChild("EquipUpdate")
 local HitMarkerEvent     = ReplicatedStorage:WaitForChild("HitMarker")
 local startGameplayEvent = ReplicatedStorage:WaitForChild("StartGameplay")
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  STATE
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local currentWeaponId = nil
 local currentAmmo     = 0
 local reserveAmmo     = 0
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  GUI
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local gui = Instance.new("ScreenGui")
 gui.Name           = "HUDGui"
 gui.ResetOnSpawn   = false
@@ -41,7 +41,7 @@ local function corner(p, r)
 	c.Parent = p
 end
 
--- ฤฤฤฤฤ HP BAR (ซ้ายล่าง) ฤฤฤฤฤ
+-- โ”€โ”€โ”€โ”€โ”€ HP BAR (เธเนเธฒเธขเธฅเนเธฒเธ) โ”€โ”€โ”€โ”€โ”€
 local hpHolder = Instance.new("Frame")
 hpHolder.Size             = UDim2.fromOffset(280, 46)
 hpHolder.Position         = UDim2.new(0, 28, 1, -78)
@@ -87,7 +87,7 @@ hpText.TextSize               = 11
 hpText.ZIndex                 = 3
 hpText.Parent                 = hpBarBg
 
--- ฤฤฤฤฤ AMMO (ขวาล่าง) ฤฤฤฤฤ
+-- โ”€โ”€โ”€โ”€โ”€ AMMO (เธเธงเธฒเธฅเนเธฒเธ) โ”€โ”€โ”€โ”€โ”€
 local ammoHolder = Instance.new("Frame")
 ammoHolder.Size             = UDim2.fromOffset(230, 76)
 ammoHolder.Position         = UDim2.new(1, -258, 1, -108)
@@ -102,7 +102,7 @@ local wpnName = Instance.new("TextLabel")
 wpnName.Size                   = UDim2.new(1, -20, 0, 20)
 wpnName.Position               = UDim2.fromOffset(10, 8)
 wpnName.BackgroundTransparency = 1
-wpnName.Text                   = "—"
+wpnName.Text                   = "โ€”"
 wpnName.TextColor3             = Color3.fromRGB(200, 195, 185)
 wpnName.Font                   = Enum.Font.GothamBold
 wpnName.TextSize               = 14
@@ -120,7 +120,7 @@ ammoText.TextSize               = 30
 ammoText.TextXAlignment         = Enum.TextXAlignment.Right
 ammoText.Parent                 = ammoHolder
 
--- ฤฤฤฤฤ HITMARKER (กลางจอ) — วาดด้วย Frame 4 เส้น ฤฤฤฤฤ
+-- โ”€โ”€โ”€โ”€โ”€ HITMARKER (เธเธฅเธฒเธเธเธญ) โ€” เธงเธฒเธ”เธ”เนเธงเธข Frame 4 เน€เธชเนเธ โ”€โ”€โ”€โ”€โ”€
 local hitMarker = Instance.new("Frame")
 hitMarker.Name                   = "HitMarker"
 hitMarker.AnchorPoint            = Vector2.new(0.5, 0.5)
@@ -130,7 +130,7 @@ hitMarker.BackgroundTransparency = 1
 hitMarker.Parent                 = gui
 
 local hmLines = {}
--- 4 ขีดทำมุม X: บนซ้าย / บนขวา / ล่างซ้าย / ล่างขวา
+-- 4 เธเธตเธ”เธ—เธณเธกเธธเธก X: เธเธเธเนเธฒเธข / เธเธเธเธงเธฒ / เธฅเนเธฒเธเธเนเธฒเธข / เธฅเนเธฒเธเธเธงเธฒ
 local LINE_DEFS = {
 	{ pos = UDim2.fromScale(0.30, 0.30), rot =  45 },
 	{ pos = UDim2.fromScale(0.70, 0.30), rot = -45 },
@@ -151,7 +151,7 @@ for _, def in ipairs(LINE_DEFS) do
 	table.insert(hmLines, line)
 end
 
--- ฤฤฤฤฤ DAMAGE FLASH (ขอบจอแดง) ฤฤฤฤฤ
+-- โ”€โ”€โ”€โ”€โ”€ DAMAGE FLASH (เธเธญเธเธเธญเนเธ”เธ) โ”€โ”€โ”€โ”€โ”€
 local dmgFlash = Instance.new("Frame")
 dmgFlash.Size                   = UDim2.fromScale(1, 1)
 dmgFlash.BackgroundColor3       = Color3.fromRGB(140, 0, 0)
@@ -160,9 +160,9 @@ dmgFlash.BorderSizePixel        = 0
 dmgFlash.ZIndex                 = -1
 dmgFlash.Parent                 = gui
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  UPDATE FUNCTIONS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local function updateAmmo()
 	if not currentWeaponId then
 		ammoHolder.Visible = false
@@ -176,7 +176,7 @@ local function updateAmmo()
 	wpnName.Text = data.Name:upper()
 
 	if data.Subtype == "Melee" then
-		ammoText.Text      = "?"
+		ammoText.Text      = "โ"
 		ammoText.TextColor3 = Color3.fromRGB(220, 220, 220)
 		return
 	end
@@ -201,9 +201,9 @@ end
 
 player:GetAttributeChangedSignal("Reloading"):Connect(updateAmmo)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  HP TRACKING
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 local lastHealth = 100
 
 local function hookHealth(character)
@@ -226,7 +226,7 @@ local function hookHealth(character)
 			hpFill.BackgroundColor3 = Color3.fromRGB(180, 45, 45)
 		end
 
-		-- โดนยิง  flash แดง
+		-- เนเธ”เธเธขเธดเธ โ’ flash เนเธ”เธ
 		if hum.Health < lastHealth then
 			dmgFlash.BackgroundTransparency = 0.65
 			TweenService:Create(dmgFlash, TweenInfo.new(0.45), {
@@ -243,9 +243,9 @@ end
 if player.Character then hookHealth(player.Character) end
 player.CharacterAdded:Connect(hookHealth)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 --  REMOTE HOOKS
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 EquipUpdateEvent.OnClientEvent:Connect(function(_slot, itemId)
 	currentWeaponId = itemId
 	updateAmmo()
@@ -254,7 +254,7 @@ end)
 SyncInventoryEvent.OnClientEvent:Connect(function(data)
 	if not data then return end
 
-	-- ammo ในแม็ก
+	-- ammo เนเธเนเธกเนเธ
 	if data.activeWeaponSlot and data.equipment then
 		local eq = data.equipment[data.activeWeaponSlot]
 		if eq then
@@ -265,7 +265,7 @@ SyncInventoryEvent.OnClientEvent:Connect(function(data)
 		currentWeaponId = nil
 	end
 
-	-- นับกระสุนสำรองใน grid
+	-- เธเธฑเธเธเธฃเธฐเธชเธธเธเธชเธณเธฃเธญเธเนเธ grid
 	reserveAmmo = 0
 	local wpn = currentWeaponId and ItemDatabase.GetItem(currentWeaponId)
 	if wpn and wpn.AmmoType and data.grid then
@@ -301,9 +301,9 @@ HitMarkerEvent.OnClientEvent:Connect(function(isHead, _dmg)
 	}):Play()
 end)
 
--- อออออออออออออออออออออออออออออออออออออออออออออออ
---  ซ่อน HUD ตอนเปิด Inventory
--- อออออออออออออออออออออออออออออออออออออออออออออออ
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  เธเนเธญเธ HUD เธ•เธญเธเน€เธเธดเธ” Inventory
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 RunService.Heartbeat:Connect(function()
 	local flag = playerGui:FindFirstChild("InventoryOpen")
 	local open = flag and flag.Value

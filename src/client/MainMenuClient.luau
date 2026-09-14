@@ -9,18 +9,18 @@ local RunService = game:GetService("RunService")
 local camera = Workspace.CurrentCamera
 local loginCameraPart = ReplicatedStorage:WaitForChild("LoginCamera")
 
--- ¢Õ„ÀÈ Client ‚À≈¥æ◊Èπ∑’Ë√Õ∫®ÿ¥°≈ÈÕß Login
+-- ‡∏Ç‡∏≠‡πÉ‡∏´‡πâ Client ‡πÇ‡∏´‡∏•‡∏î‡∏û‡∏∑‡πâ‡∏ô‡∏ó‡∏µ‡πà‡∏£‡∏≠‡∏ö‡∏à‡∏∏‡∏î‡∏Å‡∏•‡πâ‡∏≠‡∏á Login
 task.spawn(function()
 	local success, err = pcall(function()
 		player:RequestStreamAroundAsync(loginCameraPart.Position)
 	end)
 
 	if not success then
-		warn("‰¡Ë “¡“√∂‚À≈¥æ◊Èπ∑’ËÀπÈ“ Login ‰¥È:", err)
+		warn("‡πÑ‡∏°‡πà‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ‡πÇ‡∏´‡∏•‡∏î‡∏û‡∏∑‡πâ‡∏ô‡∏ó‡∏µ‡πà‡∏´‡∏ô‡πâ‡∏≤ Login ‡πÑ‡∏î‡πâ:", err)
 	end
 end)
 
--- √–∫∫°≈ÈÕßÀπÈ“ Login ·∫∫ cinematic
+-- ‡∏£‡∏∞‡∏ö‡∏ö‡∏Å‡∏•‡πâ‡∏≠‡∏á‡∏´‡∏ô‡πâ‡∏≤ Login ‡πÅ‡∏ö‡∏ö cinematic
 local cameraConnection
 local cameraStartTime = 0
 
@@ -28,7 +28,7 @@ local function enableLoginCamera()
 	camera.CameraType = Enum.CameraType.Scriptable
 	cameraStartTime = time()
 
-	-- ¬°‡≈‘°°“√¢¬—∫‡¥‘¡°ËÕπ ªÈÕß°—π°“√‡™◊ËÕ¡´È”
+	-- ‡∏¢‡∏Å‡πÄ‡∏•‡∏¥‡∏Å‡∏Å‡∏≤‡∏£‡∏Ç‡∏¢‡∏±‡∏ö‡πÄ‡∏î‡∏¥‡∏°‡∏Å‡πà‡∏≠‡∏ô ‡∏õ‡πâ‡∏≠‡∏á‡∏Å‡∏±‡∏ô‡∏Å‡∏≤‡∏£‡πÄ‡∏ä‡∏∑‡πà‡∏≠‡∏°‡∏ã‡πâ‡∏≥
 	if cameraConnection then
 		cameraConnection:Disconnect()
 		cameraConnection = nil
@@ -37,16 +37,16 @@ local function enableLoginCamera()
 	cameraConnection = RunService.RenderStepped:Connect(function()
 		local elapsed = time() - cameraStartTime
 
-		--  Ë“¬´È“¬-¢«“™È“ Ê
+		-- ‡∏™‡πà‡∏≤‡∏¢‡∏ã‡πâ‡∏≤‡∏¢-‡∏Ç‡∏ß‡∏≤‡∏ä‡πâ‡∏≤ ‡πÜ
 		local moveX = math.sin(elapsed * 0.22) * 1.2
 
-		-- ¢¬—∫¢÷Èπ-≈ß‡∫“¡“°
+		-- ‡∏Ç‡∏¢‡∏±‡∏ö‡∏Ç‡∏∂‡πâ‡∏ô-‡∏•‡∏á‡πÄ‡∏ö‡∏≤‡∏°‡∏≤‡∏Å
 		local moveY = math.sin(elapsed * 0.35) * 0.25
 
-		-- ´Ÿ¡ÀπÈ“-À≈—ß™È“ Ê
+		-- ‡∏ã‡∏π‡∏°‡∏´‡∏ô‡πâ‡∏≤-‡∏´‡∏•‡∏±‡∏á‡∏ä‡πâ‡∏≤ ‡πÜ
 		local moveZ = math.cos(elapsed * 0.18) * 0.5
 
-		-- À¡ÿπ°≈ÈÕßπ‘¥‡¥’¬« ÀπË«¬‡ªÁπÕß»“
+		-- ‡∏´‡∏°‡∏∏‡∏ô‡∏Å‡∏•‡πâ‡∏≠‡∏á‡∏ô‡∏¥‡∏î‡πÄ‡∏î‡∏µ‡∏¢‡∏ß ‡∏´‡∏ô‡πà‡∏ß‡∏¢‡πÄ‡∏õ‡πá‡∏ô‡∏≠‡∏á‡∏®‡∏≤
 		local rotateY = math.rad(math.sin(elapsed * 0.22) * 1.5)
 		local rotateX = math.rad(math.cos(elapsed * 0.28) * 0.4)
 
@@ -58,7 +58,7 @@ local function enableLoginCamera()
 end
 
 local function disableLoginCamera()
-	-- À¬ÿ¥‡Õø‡ø°µÏ°≈ÈÕß°ËÕπ§◊π°≈ÈÕß„ÀÈºŸÈ‡≈Ëπ
+	-- ‡∏´‡∏¢‡∏∏‡∏î‡πÄ‡∏≠‡∏ü‡πÄ‡∏ü‡∏Å‡∏ï‡πå‡∏Å‡∏•‡πâ‡∏≠‡∏á‡∏Å‡πà‡∏≠‡∏ô‡∏Ñ‡∏∑‡∏ô‡∏Å‡∏•‡πâ‡∏≠‡∏á‡πÉ‡∏´‡πâ‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô
 	if cameraConnection then
 		cameraConnection:Disconnect()
 		cameraConnection = nil
@@ -67,12 +67,12 @@ local function disableLoginCamera()
 	camera.CameraType = Enum.CameraType.Custom
 end
 
--- ‡ª‘¥°≈ÈÕßÀπÈ“ Login ∑—π∑’‡¡◊ËÕ‡¢È“‡°¡
+-- ‡πÄ‡∏õ‡∏¥‡∏î‡∏Å‡∏•‡πâ‡∏≠‡∏á‡∏´‡∏ô‡πâ‡∏≤ Login ‡∏ó‡∏±‡∏ô‡∏ó‡∏µ‡πÄ‡∏°‡∏∑‡πà‡∏≠‡πÄ‡∏Ç‡πâ‡∏≤‡πÄ‡∏Å‡∏°
 enableLoginCamera()
 
 local playEvent = ReplicatedStorage:WaitForChild("PlayGame")
 
---  √È“ßÀπÈ“®Õ‡¡πŸ
+-- ‡∏™‡∏£‡πâ‡∏≤‡∏á‡∏´‡∏ô‡πâ‡∏≤‡∏à‡∏≠‡πÄ‡∏°‡∏ô‡∏π
 local menu = Instance.new("ScreenGui")
 menu.Name = "MainMenu"
 menu.IgnoreGuiInset = true
@@ -80,7 +80,7 @@ menu.ResetOnSpawn = false
 menu.DisplayOrder = 100
 menu.Parent = playerGui
 
--- æ◊ÈπÀ≈—ß‚ª√Ëß ‡æ◊ËÕ„ÀÈ‡ÀÁπ©“°®“° LoginCamera
+-- ‡∏û‡∏∑‡πâ‡∏ô‡∏´‡∏•‡∏±‡∏á‡πÇ‡∏õ‡∏£‡πà‡∏á ‡πÄ‡∏û‡∏∑‡πà‡∏≠‡πÉ‡∏´‡πâ‡πÄ‡∏´‡πá‡∏ô‡∏â‡∏≤‡∏Å‡∏à‡∏≤‡∏Å LoginCamera
 local background = Instance.new("Frame")
 background.Size = UDim2.fromScale(1, 1)
 background.BackgroundColor3 = Color3.fromRGB(10, 15, 13)
@@ -88,7 +88,7 @@ background.BackgroundTransparency = 0.55
 background.BorderSizePixel = 0
 background.Parent = menu
 
--- °≈ËÕß‡¡πŸ°≈“ß®Õ
+-- ‡∏Å‡∏•‡πà‡∏≠‡∏á‡πÄ‡∏°‡∏ô‡∏π‡∏Å‡∏•‡∏≤‡∏á‡∏à‡∏≠
 local panel = Instance.new("Frame")
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
@@ -101,7 +101,7 @@ local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 12)
 panelCorner.Parent = panel
 
--- ™◊ËÕ‡°¡
+-- ‡∏ä‡∏∑‡πà‡∏≠‡πÄ‡∏Å‡∏°
 local title = Instance.new("TextLabel")
 title.AnchorPoint = Vector2.new(0.5, 0)
 title.Position = UDim2.new(0.5, 0, 0, 35)
@@ -113,7 +113,7 @@ title.Font = Enum.Font.GothamBlack
 title.TextScaled = true
 title.Parent = panel
 
--- ¢ÈÕ§«“¡√Õß
+-- ‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏°‡∏£‡∏≠‡∏á
 local subtitle = Instance.new("TextLabel")
 subtitle.AnchorPoint = Vector2.new(0.5, 0)
 subtitle.Position = UDim2.new(0.5, 0, 0, 105)
@@ -125,7 +125,7 @@ subtitle.Font = Enum.Font.Gotham
 subtitle.TextScaled = true
 subtitle.Parent = panel
 
--- ªÿË¡ Play
+-- ‡∏õ‡∏∏‡πà‡∏° Play
 local playButton = Instance.new("TextButton")
 playButton.AnchorPoint = Vector2.new(0.5, 0.5)
 playButton.Position = UDim2.new(0.5, 0, 0, 190)
@@ -142,8 +142,8 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0, 8)
 buttonCorner.Parent = playButton
 
--- °¥ Play ·≈È«¢Õ„ÀÈ Server Spawn µ—«≈–§√
---  √È“ßÀπÈ“®Õ Loading À≈—ßºŸÈ‡≈Ëπ°¥ Play
+-- ‡∏Å‡∏î Play ‡πÅ‡∏•‡πâ‡∏ß‡∏Ç‡∏≠‡πÉ‡∏´‡πâ Server Spawn ‡∏ï‡∏±‡∏ß‡∏•‡∏∞‡∏Ñ‡∏£
+-- ‡∏™‡∏£‡πâ‡∏≤‡∏á‡∏´‡∏ô‡πâ‡∏≤‡∏à‡∏≠ Loading ‡∏´‡∏•‡∏±‡∏á‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô‡∏Å‡∏î Play
 local function createLoadingScreen()
 	local loadingGui = Instance.new("ScreenGui")
 	loadingGui.Name = "LoadingGui"
@@ -180,7 +180,7 @@ local function createLoadingScreen()
 	status.TextScaled = true
 	status.Parent = background
 
-	-- æ◊ÈπÀ≈—ß¢Õß·∂∫‚À≈¥
+	-- ‡∏û‡∏∑‡πâ‡∏ô‡∏´‡∏•‡∏±‡∏á‡∏Ç‡∏≠‡∏á‡πÅ‡∏ñ‡∏ö‡πÇ‡∏´‡∏•‡∏î
 	local barBack = Instance.new("Frame")
 	barBack.AnchorPoint = Vector2.new(0.5, 0.5)
 	barBack.Position = UDim2.fromScale(0.5, 0.64)
@@ -193,7 +193,7 @@ local function createLoadingScreen()
 	barBackCorner.CornerRadius = UDim.new(1, 0)
 	barBackCorner.Parent = barBack
 
-	-- ·∂∫‚À≈¥ ’‡¢’¬«
+	-- ‡πÅ‡∏ñ‡∏ö‡πÇ‡∏´‡∏•‡∏î‡∏™‡∏µ‡πÄ‡∏Ç‡∏µ‡∏¢‡∏ß
 	local barFill = Instance.new("Frame")
 	barFill.Size = UDim2.new(0, 0, 1, 0)
 	barFill.BackgroundColor3 = Color3.fromRGB(77, 140, 83)
@@ -218,17 +218,17 @@ local function createLoadingScreen()
 	return loadingGui, barFill, status, percent
 end
 
--- ‡¡◊ËÕ°¥ PLAY
+-- ‡πÄ‡∏°‡∏∑‡πà‡∏≠‡∏Å‡∏î PLAY
 playButton.Activated:Connect(function()
 	playButton.Active = false
 
-	-- ´ËÕπÀπÈ“ Login
+	-- ‡∏ã‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤ Login
 	menu.Enabled = false
 
-	-- · ¥ßÀπÈ“ Loading
+	-- ‡πÅ‡∏™‡∏î‡∏á‡∏´‡∏ô‡πâ‡∏≤ Loading
 	local loadingGui, barFill, status, percent = createLoadingScreen()
 
-	-- ‚À≈¥·∫∫· ¥ß§«“¡§◊∫ÀπÈ“ (‡Õø‡ø°µÏ)
+	-- ‡πÇ‡∏´‡∏•‡∏î‡πÅ‡∏ö‡∏ö‡πÅ‡∏™‡∏î‡∏á‡∏Ñ‡∏ß‡∏≤‡∏°‡∏Ñ‡∏∑‡∏ö‡∏´‡∏ô‡πâ‡∏≤ (‡πÄ‡∏≠‡∏ü‡πÄ‡∏ü‡∏Å‡∏ï‡πå)
 	for i = 1, 100 do
 		barFill.Size = UDim2.new(i / 100, 0, 1, 0)
 		percent.Text = tostring(i) .. "%"
@@ -246,10 +246,10 @@ playButton.Activated:Connect(function()
 
 	status.Text = "READY"
 
-	-- §◊π°“√§«∫§ÿ¡°≈ÈÕß„ÀÈµ—«≈–§√°ËÕπ Spawn
+	-- ‡∏Ñ‡∏∑‡∏ô‡∏Å‡∏≤‡∏£‡∏Ñ‡∏ß‡∏ö‡∏Ñ‡∏∏‡∏°‡∏Å‡∏•‡πâ‡∏≠‡∏á‡πÉ‡∏´‡πâ‡∏ï‡∏±‡∏ß‡∏•‡∏∞‡∏Ñ‡∏£‡∏Å‡πà‡∏≠‡∏ô Spawn
 	disableLoginCamera()
 
-	--  —Ëß Server „ÀÈ Spawn µ—«≈–§√
+	-- ‡∏™‡∏±‡πà‡∏á Server ‡πÉ‡∏´‡πâ Spawn ‡∏ï‡∏±‡∏ß‡∏•‡∏∞‡∏Ñ‡∏£
 	playEvent:FireServer()
 
 	task.wait(0.5)
@@ -257,4 +257,3 @@ playButton.Activated:Connect(function()
 	loadingGui:Destroy()
 	menu:Destroy()
 end)
-

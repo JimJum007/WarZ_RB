@@ -1,48 +1,48 @@
 -- PickupClient.lua
--- LocalScript  ”À√—∫· ¥ß Prompt ‡°Á∫‰Õ‡∑¡‡¡◊ËÕºŸÈ‡≈ËπÕ¬ŸË„°≈È ·≈–®—¥°“√ªÿË¡ F ‡æ◊ËÕ‡°Á∫‰Õ‡∑¡
--- «“ß‰«È„π StarterPlayer/StarterPlayerScripts
+-- LocalScript ‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡πÅ‡∏™‡∏î‡∏á Prompt ‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÄ‡∏°‡∏∑‡πà‡∏≠‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô‡∏≠‡∏¢‡∏π‡πà‡πÉ‡∏Å‡∏•‡πâ ‡πÅ‡∏•‡∏∞‡∏à‡∏±‡∏î‡∏Å‡∏≤‡∏£‡∏õ‡∏∏‡πà‡∏° F ‡πÄ‡∏û‡∏∑‡πà‡∏≠‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°
+-- ‡∏ß‡∏≤‡∏á‡πÑ‡∏ß‡πâ‡πÉ‡∏ô StarterPlayer/StarterPlayerScripts
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- √Õ RemoteEvent 'StartGameplay' °ËÕπ‡√‘Ë¡∑”ß“π (·æ∑‡∑‘√Ïπ‡¥’¬«°—∫ §√‘ªµÏΩ—Ëß‰§≈‡ÕπµÏÕ◊ËπÊ)
+-- ‡∏£‡∏≠ RemoteEvent 'StartGameplay' ‡∏Å‡πà‡∏≠‡∏ô‡πÄ‡∏£‡∏¥‡πà‡∏°‡∏ó‡∏≥‡∏á‡∏≤‡∏ô (‡πÅ‡∏û‡∏ó‡πÄ‡∏ó‡∏¥‡∏£‡πå‡∏ô‡πÄ‡∏î‡∏µ‡∏¢‡∏ß‡∏Å‡∏±‡∏ö‡∏™‡∏Ñ‡∏£‡∏¥‡∏õ‡∏ï‡πå‡∏ù‡∏±‡πà‡∏á‡πÑ‡∏Ñ‡∏•‡πÄ‡∏≠‡∏ô‡∏ï‡πå‡∏≠‡∏∑‡πà‡∏ô‡πÜ)
 local startGameplay = ReplicatedStorage:WaitForChild("StartGameplay")
 startGameplay.OnClientEvent:Wait()
 
--- ‚À≈¥‚¡¥Ÿ≈ ItemDatabase  ”À√—∫¥÷ß¢ÈÕ¡Ÿ≈‰Õ‡∑¡·≈– ’§«“¡À“¬“°
+-- ‡πÇ‡∏´‡∏•‡∏î‡πÇ‡∏°‡∏î‡∏π‡∏• ItemDatabase ‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡∏î‡∏∂‡∏á‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÅ‡∏•‡∏∞‡∏™‡∏µ‡∏Ñ‡∏ß‡∏≤‡∏°‡∏´‡∏≤‡∏¢‡∏≤‡∏Å
 local ItemDatabase = require(ReplicatedStorage:WaitForChild("ItemDatabase"))
 
--- ÕÈ“ßÕ‘ß RemoteEvent  ”À√—∫ Ëß§”¢Õ‡°Á∫‰Õ‡∑¡‰ª¬—ß‡´‘√Ïø‡«Õ√Ï
+-- ‡∏≠‡πâ‡∏≤‡∏á‡∏≠‡∏¥‡∏á RemoteEvent ‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡∏™‡πà‡∏á‡∏Ñ‡∏≥‡∏Ç‡∏≠‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÑ‡∏õ‡∏¢‡∏±‡∏á‡πÄ‡∏ã‡∏¥‡∏£‡πå‡∏ü‡πÄ‡∏ß‡∏≠‡∏£‡πå
 local pickupEvent = ReplicatedStorage:WaitForChild("PickupItem")
 
--- ÕÈ“ßÕ‘ßºŸÈ‡≈Ëπ·≈–‚ø≈‡¥Õ√Ï‰Õ‡∑¡
+-- ‡∏≠‡πâ‡∏≤‡∏á‡∏≠‡∏¥‡∏á‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô‡πÅ‡∏•‡∏∞‡πÇ‡∏ü‡∏•‡πÄ‡∏î‡∏≠‡∏£‡πå‡πÑ‡∏≠‡πÄ‡∏ó‡∏°
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- √–¬– Ÿß ÿ¥∑’Ë®–· ¥ß Prompt ‡°Á∫‰Õ‡∑¡ (ÀπË«¬:  µ—¥)
+-- ‡∏£‡∏∞‡∏¢‡∏∞‡∏™‡∏π‡∏á‡∏™‡∏∏‡∏î‡∏ó‡∏µ‡πà‡∏à‡∏∞‡πÅ‡∏™‡∏î‡∏á Prompt ‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏° (‡∏´‡∏ô‡πà‡∏ß‡∏¢: ‡∏™‡∏ï‡∏±‡∏î)
 local PICKUP_RANGE = 10
 
--- µ—«·ª√‡°Á∫ Part ∑’Ë„°≈È∑’Ë ÿ¥„π¢≥–π—Èπ
+-- ‡∏ï‡∏±‡∏ß‡πÅ‡∏õ‡∏£‡πÄ‡∏Å‡πá‡∏ö Part ‡∏ó‡∏µ‡πà‡πÉ‡∏Å‡∏•‡πâ‡∏ó‡∏µ‡πà‡∏™‡∏∏‡∏î‡πÉ‡∏ô‡∏Ç‡∏ì‡∏∞‡∏ô‡∏±‡πâ‡∏ô
 local closestPart = nil
 
 ----------------------------------------------------------------------------
---  √È“ß UI  ”À√—∫· ¥ß Prompt ‡°Á∫‰Õ‡∑¡
+-- ‡∏™‡∏£‡πâ‡∏≤‡∏á UI ‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡πÅ‡∏™‡∏î‡∏á Prompt ‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°
 ----------------------------------------------------------------------------
 
---  √È“ß ScreenGui À≈—°
+-- ‡∏™‡∏£‡πâ‡∏≤‡∏á ScreenGui ‡∏´‡∏•‡∏±‡∏Å
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "PickupPromptGui"
 screenGui.ResetOnSpawn = false
 screenGui.DisplayOrder = 10
 screenGui.Parent = playerGui
 
--- ‡ø√¡æ◊ÈπÀ≈—ß¢Õß Prompt (∏’¡¡◊¥·π« Survival)
+-- ‡πÄ‡∏ü‡∏£‡∏°‡∏û‡∏∑‡πâ‡∏ô‡∏´‡∏•‡∏±‡∏á‡∏Ç‡∏≠‡∏á Prompt (‡∏ò‡∏µ‡∏°‡∏°‡∏∑‡∏î‡πÅ‡∏ô‡∏ß Survival)
 local promptFrame = Instance.new("Frame")
 promptFrame.Name = "PromptFrame"
 promptFrame.AnchorPoint = Vector2.new(0.5, 1)
-promptFrame.Position = UDim2.new(0.5, 0, 0.92, 0) -- µ”·ÀπËß°≈“ß≈Ë“ß¢ÕßÀπÈ“®Õ
+promptFrame.Position = UDim2.new(0.5, 0, 0.92, 0) -- ‡∏ï‡∏≥‡πÅ‡∏´‡∏ô‡πà‡∏á‡∏Å‡∏•‡∏≤‡∏á‡∏•‡πà‡∏≤‡∏á‡∏Ç‡∏≠‡∏á‡∏´‡∏ô‡πâ‡∏≤‡∏à‡∏≠
 promptFrame.Size = UDim2.new(0, 320, 0, 48)
 promptFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 promptFrame.BackgroundTransparency = 0.3
@@ -50,12 +50,12 @@ promptFrame.BorderSizePixel = 0
 promptFrame.Visible = false
 promptFrame.Parent = screenGui
 
--- ¡ÿ¡‚§Èß¡π„ÀÈ¥Ÿ «¬ß“¡
+-- ‡∏°‡∏∏‡∏°‡πÇ‡∏Ñ‡πâ‡∏á‡∏°‡∏ô‡πÉ‡∏´‡πâ‡∏î‡∏π‡∏™‡∏ß‡∏¢‡∏á‡∏≤‡∏°
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 8)
 corner.Parent = promptFrame
 
--- ¢ÈÕ§«“¡ '[F]' ( ’¢“«) · ¥ßªÿË¡°¥
+-- ‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏° '[F]' (‡∏™‡∏µ‡∏Ç‡∏≤‡∏ß) ‡πÅ‡∏™‡∏î‡∏á‡∏õ‡∏∏‡πà‡∏°‡∏Å‡∏î
 local keyLabel = Instance.new("TextLabel")
 keyLabel.Name = "KeyLabel"
 keyLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -70,12 +70,12 @@ keyLabel.TextSize = 16
 keyLabel.Font = Enum.Font.GothamBold
 keyLabel.Parent = promptFrame
 
--- ¡ÿ¡‚§Èß¡π ”À√—∫ªÿË¡ F
+-- ‡∏°‡∏∏‡∏°‡πÇ‡∏Ñ‡πâ‡∏á‡∏°‡∏ô‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡∏õ‡∏∏‡πà‡∏° F
 local keyCorner = Instance.new("UICorner")
 keyCorner.CornerRadius = UDim.new(0, 4)
 keyCorner.Parent = keyLabel
 
--- ¢ÈÕ§«“¡ 'Pick up' ( ’¢“«)
+-- ‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏° 'Pick up' (‡∏™‡∏µ‡∏Ç‡∏≤‡∏ß)
 local actionLabel = Instance.new("TextLabel")
 actionLabel.Name = "ActionLabel"
 actionLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -89,7 +89,7 @@ actionLabel.Font = Enum.Font.GothamBold
 actionLabel.TextXAlignment = Enum.TextXAlignment.Left
 actionLabel.Parent = promptFrame
 
--- ¢ÈÕ§«“¡™◊ËÕ‰Õ‡∑¡ ( ’µ“¡§«“¡À“¬“°)
+-- ‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ä‡∏∑‡πà‡∏≠‡πÑ‡∏≠‡πÄ‡∏ó‡∏° (‡∏™‡∏µ‡∏ï‡∏≤‡∏°‡∏Ñ‡∏ß‡∏≤‡∏°‡∏´‡∏≤‡∏¢‡∏≤‡∏Å)
 local itemLabel = Instance.new("TextLabel")
 itemLabel.Name = "ItemLabel"
 itemLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -105,11 +105,11 @@ itemLabel.TextTruncate = Enum.TextTruncate.AtEnd
 itemLabel.Parent = promptFrame
 
 ----------------------------------------------------------------------------
--- ø—ß°Ï™—πµ√«® Õ∫«Ë“ Inventory ‡ª‘¥Õ¬ŸËÀ√◊Õ‰¡Ë
+-- ‡∏ü‡∏±‡∏á‡∏Å‡πå‡∏ä‡∏±‡∏ô‡∏ï‡∏£‡∏ß‡∏à‡∏™‡∏≠‡∏ö‡∏ß‡πà‡∏≤ Inventory ‡πÄ‡∏õ‡∏¥‡∏î‡∏≠‡∏¢‡∏π‡πà‡∏´‡∏£‡∏∑‡∏≠‡πÑ‡∏°‡πà
 ----------------------------------------------------------------------------
 
 local function isInventoryOpen()
-	-- µ√«® Õ∫ BoolValue 'InventoryOpen' „π PlayerGui
+	-- ‡∏ï‡∏£‡∏ß‡∏à‡∏™‡∏≠‡∏ö BoolValue 'InventoryOpen' ‡πÉ‡∏ô PlayerGui
 	local flag = playerGui:FindFirstChild("InventoryOpen")
 	if flag and flag:IsA("BoolValue") then
 		return flag.Value
@@ -118,7 +118,7 @@ local function isInventoryOpen()
 end
 
 ----------------------------------------------------------------------------
--- ø—ß°Ï™—π¥÷ß itemId ®“°™◊ËÕ Part (√Ÿª·∫∫: ItemSpawn_<itemId>)
+-- ‡∏ü‡∏±‡∏á‡∏Å‡πå‡∏ä‡∏±‡∏ô‡∏î‡∏∂‡∏á itemId ‡∏à‡∏≤‡∏Å‡∏ä‡∏∑‡πà‡∏≠ Part (‡∏£‡∏π‡∏õ‡πÅ‡∏ö‡∏ö: ItemSpawn_<itemId>)
 ----------------------------------------------------------------------------
 
 local function getItemIdFromPart(part)
@@ -126,23 +126,23 @@ local function getItemIdFromPart(part)
 end
 
 ----------------------------------------------------------------------------
--- «π≈Ÿª∑ÿ°‡ø√¡‡æ◊ËÕÀ“‰Õ‡∑¡∑’Ë„°≈È∑’Ë ÿ¥
+-- ‡∏ß‡∏ô‡∏•‡∏π‡∏õ‡∏ó‡∏∏‡∏Å‡πÄ‡∏ü‡∏£‡∏°‡πÄ‡∏û‡∏∑‡πà‡∏≠‡∏´‡∏≤‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡∏ó‡∏µ‡πà‡πÉ‡∏Å‡∏•‡πâ‡∏ó‡∏µ‡πà‡∏™‡∏∏‡∏î
 ----------------------------------------------------------------------------
 
 local scanAccum = 0
 RunService.Heartbeat:Connect(function(dt)
 	scanAccum = scanAccum + dt
-	if scanAccum < 0.1 then return end   --  ·°π 10 §√—Èß/«‘π“∑’ æÕ
+	if scanAccum < 0.1 then return end   -- ‡∏™‡πÅ‡∏Å‡∏ô 10 ‡∏Ñ‡∏£‡∏±‡πâ‡∏á/‡∏ß‡∏¥‡∏ô‡∏≤‡∏ó‡∏µ ‡∏û‡∏≠
 	scanAccum = 0
 
-	-- ∂È“ Inventory ‡ª‘¥Õ¬ŸË ´ËÕπ Prompt ·≈È«¢È“¡
+	-- ‡∏ñ‡πâ‡∏≤ Inventory ‡πÄ‡∏õ‡∏¥‡∏î‡∏≠‡∏¢‡∏π‡πà ‡∏ã‡πà‡∏≠‡∏ô Prompt ‡πÅ‡∏•‡πâ‡∏ß‡∏Ç‡πâ‡∏≤‡∏°
 	if isInventoryOpen() then
 		promptFrame.Visible = false
 		closestPart = nil
 		return
 	end
 
-	-- ¥÷ß Character ·≈– HumanoidRootPart ¢ÕßºŸÈ‡≈Ëπ
+	-- ‡∏î‡∏∂‡∏á Character ‡πÅ‡∏•‡∏∞ HumanoidRootPart ‡∏Ç‡∏≠‡∏á‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô
 	local character = player.Character
 	if not character then
 		promptFrame.Visible = false
@@ -157,7 +157,7 @@ RunService.Heartbeat:Connect(function(dt)
 		return
 	end
 
-	-- ¥÷ß‚ø≈‡¥Õ√Ï ItemSpawns ®“° Workspace
+	-- ‡∏î‡∏∂‡∏á‡πÇ‡∏ü‡∏•‡πÄ‡∏î‡∏≠‡∏£‡πå ItemSpawns ‡∏à‡∏≤‡∏Å Workspace
 	local itemSpawns = workspace:FindFirstChild("ItemSpawns")
 	if not itemSpawns then
 		promptFrame.Visible = false
@@ -169,12 +169,12 @@ RunService.Heartbeat:Connect(function(dt)
 	local nearestDist = PICKUP_RANGE
 	local nearestPart = nil
 
-	-- «πÀ“ Part ∑’Ë„°≈È∑’Ë ÿ¥„π√–¬– PICKUP_RANGE
+	-- ‡∏ß‡∏ô‡∏´‡∏≤ Part ‡∏ó‡∏µ‡πà‡πÉ‡∏Å‡∏•‡πâ‡∏ó‡∏µ‡πà‡∏™‡∏∏‡∏î‡πÉ‡∏ô‡∏£‡∏∞‡∏¢‡∏∞ PICKUP_RANGE
 	for _, part in ipairs(itemSpawns:GetChildren()) do
 		if part:IsA("BasePart") and part.Transparency < 1 then
 			local dist = (part.Position - playerPos).Magnitude
 			if dist <= nearestDist then
-				-- µ√«® Õ∫«Ë“ Part π’È¡’ itemId ∑’Ë∂Ÿ°µÈÕß
+				-- ‡∏ï‡∏£‡∏ß‡∏à‡∏™‡∏≠‡∏ö‡∏ß‡πà‡∏≤ Part ‡∏ô‡∏µ‡πâ‡∏°‡∏µ itemId ‡∏ó‡∏µ‡πà‡∏ñ‡∏π‡∏Å‡∏ï‡πâ‡∏≠‡∏á
 				local itemId = getItemIdFromPart(part)
 				if itemId then
 					nearestDist = dist
@@ -184,17 +184,17 @@ RunService.Heartbeat:Connect(function(dt)
 		end
 	end
 
-	-- Õ—ª‡¥µ Prompt µ“¡º≈≈—æ∏Ï
+	-- ‡∏≠‡∏±‡∏õ‡πÄ‡∏î‡∏ï Prompt ‡∏ï‡∏≤‡∏°‡∏ú‡∏•‡∏•‡∏±‡∏û‡∏ò‡πå
 	if nearestPart then
 		closestPart = nearestPart
 		local itemId = getItemIdFromPart(nearestPart)
 		local itemData = ItemDatabase.GetItem(itemId)
 
 		if itemData then
-			-- · ¥ß™◊ËÕ‰Õ‡∑¡æ√ÈÕ¡ ’§«“¡À“¬“°
+			-- ‡πÅ‡∏™‡∏î‡∏á‡∏ä‡∏∑‡πà‡∏≠‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡∏û‡∏£‡πâ‡∏≠‡∏°‡∏™‡∏µ‡∏Ñ‡∏ß‡∏≤‡∏°‡∏´‡∏≤‡∏¢‡∏≤‡∏Å
 			local qty = nearestPart:GetAttribute("Quantity")
 			if qty and qty > 1 then
-				itemLabel.Text = itemData.Name .. "  ?" .. qty
+				itemLabel.Text = itemData.Name .. "  √ó" .. qty
 			else
 				itemLabel.Text = itemData.Name
 			end
@@ -202,33 +202,33 @@ RunService.Heartbeat:Connect(function(dt)
 			itemLabel.TextColor3 = ItemDatabase.GetRarityColor(itemData.Rarity)
 			promptFrame.Visible = true
 		else
-			-- ‰¡Ëæ∫¢ÈÕ¡Ÿ≈‰Õ‡∑¡„π∞“π¢ÈÕ¡Ÿ≈ ´ËÕπ Prompt
+			-- ‡πÑ‡∏°‡πà‡∏û‡∏ö‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÉ‡∏ô‡∏ê‡∏≤‡∏ô‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏• ‡∏ã‡πà‡∏≠‡∏ô Prompt
 			promptFrame.Visible = false
 			closestPart = nil
 		end
 	else
-		-- ‰¡Ë¡’‰Õ‡∑¡„π√–¬– ´ËÕπ Prompt
+		-- ‡πÑ‡∏°‡πà‡∏°‡∏µ‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÉ‡∏ô‡∏£‡∏∞‡∏¢‡∏∞ ‡∏ã‡πà‡∏≠‡∏ô Prompt
 		promptFrame.Visible = false
 		closestPart = nil
 	end
 end)
 
 ----------------------------------------------------------------------------
--- ®—¥°“√Õ‘πæÿµ®“°ºŸÈ‡≈Ëπ: °¥ªÿË¡ F ‡æ◊ËÕ‡°Á∫‰Õ‡∑¡
+-- ‡∏à‡∏±‡∏î‡∏Å‡∏≤‡∏£‡∏≠‡∏¥‡∏ô‡∏û‡∏∏‡∏ï‡∏à‡∏≤‡∏Å‡∏ú‡∏π‡πâ‡πÄ‡∏•‡πà‡∏ô: ‡∏Å‡∏î‡∏õ‡∏∏‡πà‡∏° F ‡πÄ‡∏û‡∏∑‡πà‡∏≠‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°
 ----------------------------------------------------------------------------
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	-- ¢È“¡∂È“‡°¡ª√–¡«≈º≈Õ‘πæÿµ·≈È« (‡™Ëπ æ‘¡æÏ„π·™∑)
+	-- ‡∏Ç‡πâ‡∏≤‡∏°‡∏ñ‡πâ‡∏≤‡πÄ‡∏Å‡∏°‡∏õ‡∏£‡∏∞‡∏°‡∏ß‡∏•‡∏ú‡∏•‡∏≠‡∏¥‡∏ô‡∏û‡∏∏‡∏ï‡πÅ‡∏•‡πâ‡∏ß (‡πÄ‡∏ä‡πà‡∏ô ‡∏û‡∏¥‡∏°‡∏û‡πå‡πÉ‡∏ô‡πÅ‡∏ä‡∏ó)
 	if gameProcessed then
 		return
 	end
 
-	-- µ√«® Õ∫«Ë“°¥ªÿË¡ F ·≈–¡’‰Õ‡∑¡∑’Ë„°≈È∑’Ë ÿ¥Õ¬ŸË
+	-- ‡∏ï‡∏£‡∏ß‡∏à‡∏™‡∏≠‡∏ö‡∏ß‡πà‡∏≤‡∏Å‡∏î‡∏õ‡∏∏‡πà‡∏° F ‡πÅ‡∏•‡∏∞‡∏°‡∏µ‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡∏ó‡∏µ‡πà‡πÉ‡∏Å‡∏•‡πâ‡∏ó‡∏µ‡πà‡∏™‡∏∏‡∏î‡∏≠‡∏¢‡∏π‡πà
 	if input.KeyCode == Enum.KeyCode.F and closestPart then
-		--  Ëß§”¢Õ‡°Á∫‰Õ‡∑¡‰ª¬—ß‡´‘√Ïø‡«Õ√Ïæ√ÈÕ¡ Part ÕÈ“ßÕ‘ß
+		-- ‡∏™‡πà‡∏á‡∏Ñ‡∏≥‡∏Ç‡∏≠‡πÄ‡∏Å‡πá‡∏ö‡πÑ‡∏≠‡πÄ‡∏ó‡∏°‡πÑ‡∏õ‡∏¢‡∏±‡∏á‡πÄ‡∏ã‡∏¥‡∏£‡πå‡∏ü‡πÄ‡∏ß‡∏≠‡∏£‡πå‡∏û‡∏£‡πâ‡∏≠‡∏° Part ‡∏≠‡πâ‡∏≤‡∏á‡∏≠‡∏¥‡∏á
 		pickupEvent:FireServer(closestPart)
 
-		-- ´ËÕπ Prompt ∑—π∑’‡æ◊ËÕªÈÕß°—π°“√°¥´È”
+		-- ‡∏ã‡πà‡∏≠‡∏ô Prompt ‡∏ó‡∏±‡∏ô‡∏ó‡∏µ‡πÄ‡∏û‡∏∑‡πà‡∏≠‡∏õ‡πâ‡∏≠‡∏á‡∏Å‡∏±‡∏ô‡∏Å‡∏≤‡∏£‡∏Å‡∏î‡∏ã‡πâ‡∏≥
 		promptFrame.Visible = false
 		closestPart = nil
 	end
