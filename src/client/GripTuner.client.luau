@@ -88,7 +88,9 @@ local function refreshDisplay()
 	end
 end
 
-player.CharacterAdded:Connect(function()
+local startGameplayEvent = ReplicatedStorage:WaitForChild("StartGameplay")
+
+startGameplayEvent.OnClientEvent:Connect(function()
 	task.defer(refreshDisplay)
 end)
 

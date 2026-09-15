@@ -588,21 +588,16 @@ end)
 --  STARTUP
 -- ═══════════════════════════════════════════════
 startGameplayEvent.OnClientEvent:Connect(function()
-	local character = player.Character or player.CharacterAdded:Wait()
-	setupCharacter(character)
+	local character = player.Character
+	if character then
+		setupCharacter(character)
+	end
 
 	playing = true
 	crosshairGui.Enabled = true
 	lockMouse()
 
 	showModeText("THIRD PERSON • V: FIRST PERSON • E: SHOULDER")
-end)
-
--- กรณีตายแล้วเกิดใหม่
-player.CharacterAdded:Connect(function(character)
-	if playing then
-		setupCharacter(character)
-	end
 end)
 
 -- หมุนไอเทมกลางแมพฝั่ง client (ไม่กิน bandwidth)

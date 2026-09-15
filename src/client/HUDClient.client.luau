@@ -240,8 +240,11 @@ local function hookHealth(character)
 	refresh()
 end
 
-if player.Character then hookHealth(player.Character) end
-player.CharacterAdded:Connect(hookHealth)
+startGameplayEvent.OnClientEvent:Connect(function()
+	if player.Character then
+		hookHealth(player.Character)
+	end
+end)
 
 -- ═══════════════════════════════════════════════
 --  REMOTE HOOKS

@@ -451,16 +451,14 @@ end
 
 WeaponChanged.Event:Connect(safeAttach)
 
-Players.PlayerAdded:Connect(function(player)
-	player.CharacterAdded:Connect(function(char)
-		char:WaitForChild("HumanoidRootPart", 10)
-		task.wait(0.3)
-		activeWeapon[player] = nil
-		if _G.InventoryManager then
-			local itemId = _G.InventoryManager.GetActiveWeapon(player)
-			safeAttach(player, itemId)
-		end
-	end)
+local serverCharacterReadyEvent = ReplicatedStorage:WaitForChild("ServerCharacterReady")
+
+serverCharacterReadyEvent.Event:Connect(function(player, char)
+	activeWeapon[player] = nil
+	if _G.InventoryManager then
+		local itemId = _G.InventoryManager.GetActiveWeapon(player)
+		safeAttach(player, itemId)
+	end
 end)
 
 Players.PlayerRemoving:Connect(function(player)

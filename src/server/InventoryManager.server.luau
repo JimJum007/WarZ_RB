@@ -507,9 +507,11 @@ local function dropAllOnDeath(player, deathPos)
 	notifyWeapon(player)
 end
 
+local serverCharacterReadyEvent = ReplicatedStorage:WaitForChild("ServerCharacterReady")
+
 local function hookCharacter(player, character)
 	character:SetAttribute("Team", "Player")
-	local hum = character:WaitForChild("Humanoid", 10)
+	local hum = character:FindFirstChild("Humanoid")
 	if not hum then return end
 	
 	task.delay(0.4, function() notifyWeapon(player) end)
@@ -519,20 +521,6 @@ local function hookCharacter(player, character)
 		local pos  = root and root.Position or Vector3.new(0, 10, 0)
 		dropAllOnDeath(player, pos)
 	end)
-end
-
--- ═══════════════════════════════════════════════
---  PLAYER JOIN / LEAVE
--- ═══════════════════════════════════════════════
-local function onPlayerAdded(player)
-	inventories[player] = createInventory()
-
-	player.CharacterAdded:Connect(function(char)
-		hookCharacter(player, char)
-	end)
-	if player.Character then
-		hookCharacter(player, player.Character)
-	end
 
 	-- ⚠️ ของเริ่มต้น (debug) — ลบออกตอน production
 	task.defer(function()
@@ -543,10 +531,21 @@ local function onPlayerAdded(player)
 	end)
 end
 
+-- ═══════════════════════════════════════════════
+--  PLAYER JOIN / LEAVE
+-- ═══════════════════════════════════════════════
+local function onPlayerAdded(player)
+	inventories[player] = createInventory()
+end
+
 Players.PlayerAdded:Connect(onPlayerAdded)
 for _, p in ipairs(Players:GetPlayers()) do
 	onPlayerAdded(p)   -- กันผู้เล่นที่ join ก่อน script โหลดเสร็จ
 end
+
+serverCharacterReadyEvent.Event:Connect(function(player, character)
+	hookCharacter(player, character)
+end)
 
 Players.PlayerRemoving:Connect(function(player)
 	inventories[player] = nil

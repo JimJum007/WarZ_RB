@@ -20,18 +20,26 @@ local function getRemoteEvent(name)
 	return event
 end
 
-local playEvent = getRemoteEvent("PlayGame")
-local startGameplayEvent = getRemoteEvent("StartGameplay")
+local function getBindableEvent(name)
+	local event = ReplicatedStorage:FindFirstChild(name)
 
--- รับคำสั่งจากปุ่ม PLAY
-playEvent.OnServerEvent:Connect(function(player)
-	-- ถ้ายังไม่มีตัวละคร ให้ Spawn ด้วย avatar มาตรฐาน
-	if not player.Character then
-		local desc = AvatarStandardizer.GetHumanoidDescriptionForPlayer(player)
-		player:LoadCharacterWithHumanoidDescription(desc)
+	if not event then
+		event = Instance.new("BindableEvent")
+		event.Name = name
+		event.Parent = ReplicatedStorage
 	end
 
-	-- รอให้ตัวละครมาตรฐานถูกติดตั้งเสร็จก่อนส่งสัญญาณเริ่มเกม
+	return event
+end
+
+local playEvent = getRemoteEvent("PlayGame")
+local startGameplayEvent = getRemoteEvent("StartGameplay")
+local serverCharacterReadyEvent = getBindableEvent("ServerCharacterReady")
+
+local function respawnPlayer(player)
+	local desc = AvatarStandardizer.GetHumanoidDescriptionForPlayer(player)
+	player:LoadCharacterWithHumanoidDescription(desc)
+
 	local character = player.Character or player.CharacterAdded:Wait()
 	local deadline = os.clock() + 10
 	while character and os.clock() < deadline do
@@ -48,5 +56,22 @@ playEvent.OnServerEvent:Connect(function(player)
 		return
 	end
 
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.Died:Connect(function()
+			task.delay(3, function()
+				if player.Parent then
+					respawnPlayer(player)
+				end
+			end)
+		end)
+	end
+
+	serverCharacterReadyEvent:Fire(player, character)
 	startGameplayEvent:FireClient(player)
+end
+
+-- รับคำสั่งจากปุ่ม PLAY
+playEvent.OnServerEvent:Connect(function(player)
+	respawnPlayer(player)
 end)

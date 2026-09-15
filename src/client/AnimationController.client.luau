@@ -453,33 +453,11 @@ local function setup(char)
 	print("[AnimationController] R15 animation bound")
 end
 
-local function watchCharacter(char)
-	if not char then return end
-	task.spawn(function()
-		local deadline = os.clock() + 12
-		while char.Parent and char:GetAttribute("ClassicAvatar") ~= true and os.clock() < deadline do
-			task.wait(0.1)
-		end
-		if char.Parent and char:GetAttribute("ClassicAvatar") == true then setup(char) end
-	end)
-end
-
-if player.Character then watchCharacter(player.Character) end
-player.CharacterAdded:Connect(function(char)
+StartGameplayEvent.OnClientEvent:Connect(function()
 	boundAnimator = nil
 	rootPart = nil
-	watchCharacter(char)
-end)
-StartGameplayEvent.OnClientEvent:Connect(function()
-	if player.Character then task.defer(setup, player.Character) end
-end)
-
-task.spawn(function()
-	while task.wait(0.25) do
-		local char = player.Character
-		if char and char ~= character and char:GetAttribute("ClassicAvatar") == true then
-			setup(char)
-		end
+	if player.Character then
+		task.defer(setup, player.Character)
 	end
 end)
 

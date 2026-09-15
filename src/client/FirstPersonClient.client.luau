@@ -92,13 +92,13 @@ local function bindCharacter(char: Model?)
 	refreshIfNeeded()
 end
 
-player.CharacterAdded:Connect(function(char)
-	bindCharacter(char)
-end)
+local startGameplayEvent = ReplicatedStorage:WaitForChild("StartGameplay")
 
-if player.Character then
-	bindCharacter(player.Character)
-end
+startGameplayEvent.OnClientEvent:Connect(function()
+	if player.Character then
+		bindCharacter(player.Character)
+	end
+end)
 
 EquipUpdateEvent.OnClientEvent:Connect(function()
 	forceRefresh = true

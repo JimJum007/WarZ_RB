@@ -153,14 +153,11 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
-local function hookPlayer(player: Player)
-	player.CharacterAdded:Connect(function()
-		clearIK(player)
-	end)
-end
+local serverCharacterReadyEvent = ReplicatedStorage:WaitForChild("ServerCharacterReady")
 
-Players.PlayerAdded:Connect(hookPlayer)
-for _, p in ipairs(Players:GetPlayers()) do hookPlayer(p) end
+serverCharacterReadyEvent.Event:Connect(function(player, character)
+	clearIK(player)
+end)
 
 Players.PlayerRemoving:Connect(function(player)
 	clearIK(player)
