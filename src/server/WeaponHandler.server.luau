@@ -248,6 +248,15 @@ ShootEvent.OnServerEvent:Connect(function(player, aimPoint)
 
 	-- ⚠️ Server คำนวณจุดยิงเอง ห้ามเชื่อ client
 	local origin = root.Position + Vector3.new(0, 1.5, 0)
+	local equippedWeapon = character:FindFirstChild("EquippedWeapon")
+	if equippedWeapon then
+		local handle = equippedWeapon:FindFirstChild("Handle") or equippedWeapon.PrimaryPart
+		local muzzle = handle and handle:FindFirstChild("Muzzle")
+		if muzzle and muzzle:IsA("Attachment") then
+			origin = muzzle.WorldPosition
+		end
+	end
+	
 	local delta  = aimPoint - origin
 	if delta.Magnitude < 0.1 then return end
 	if delta.Magnitude > MAX_BULLET_RANGE * 1.5 then return end  -- กัน aim ข้ามแมพ

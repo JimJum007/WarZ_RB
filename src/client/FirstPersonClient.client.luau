@@ -10,15 +10,7 @@ local EquipUpdateEvent = ReplicatedStorage:WaitForChild("EquipUpdate")
 -- ระยะกล้องจากหัว — ต่ำกว่านี้ถือว่า first person (สอดคล้อง CrosshairClient V-mode)
 local FIRST_PERSON_HEAD_DIST = 1.15
 
--- ส่วนที่ยังมองเห็น (มือ + แขน)
-local VISIBLE_ARM_PARTS: { [string]: boolean } = {
-	RightHand = true,
-	RightLowerArm = true,
-	RightUpperArm = true,
-	LeftHand = true,
-	LeftLowerArm = true,
-	LeftUpperArm = true,
-}
+-- Option A: ซ่อนทั้งตัวใน First Person (เพราะเราจะมี ViewModel แยกต่างหาก)
 
 local currentCharacter: Model? = nil
 local lastFirstPerson: boolean? = nil
@@ -52,27 +44,13 @@ local function applyBodyVisibility(firstPerson: boolean)
 
 	for _, obj in ipairs(char:GetDescendants()) do
 		if obj:IsA("BasePart") then
-			local inAccessory = obj:FindFirstAncestorOfClass("Accessory") ~= nil
-			if inAccessory then
-				obj.LocalTransparencyModifier = firstPerson and 1 or 0
-			else
-				local keep = VISIBLE_ARM_PARTS[obj.Name] == true
-				if firstPerson then
-					obj.LocalTransparencyModifier = keep and 0 or 1
-				else
-					obj.LocalTransparencyModifier = 0
-				end
-			end
+			obj.LocalTransparencyModifier = firstPerson and 1 or 0
 		elseif obj:IsA("Decal") and obj.Name == "face" then
 			obj.Transparency = firstPerson and 1 or 0
 		end
 	end
 
-	if firstPerson then
-		setWeaponVisible(true)
-	else
-		setWeaponVisible(true)
-	end
+	setWeaponVisible(not firstPerson)
 end
 
 local function refreshIfNeeded()

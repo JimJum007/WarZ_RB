@@ -424,10 +424,9 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 		return
 	end
 
-	-- Inventory เปิด → หยุดกล้อง
-	if isInventoryOpen() then
+	-- Inventory เปิด หรือกำลังเล็ง → ซ่อนเป้า
+	if isInventoryOpen() or isADS then
 		crosshair.Visible = false
-		-- return
 	else
 		crosshair.Visible = true
 	end
@@ -435,6 +434,7 @@ RunService:BindToRenderStep("GameplayCamera", Enum.RenderPriority.Camera.Value +
 	-- อัปเดต pitch ทุกเฟรม (AnimationController อ่านจากกล้องโดยตรงอยู่แล้ว)
 	_G.CameraPitch = pitch
 	_G.IsADS = isADS
+	_G.IsFirstPerson = firstPerson
 
 	local camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable

@@ -200,10 +200,14 @@ local function maintainLocomotion(id, motion, speed, currentStance)
 	end
 end
 
+local vmPoseTrack = nil
+local vmActionTracks = {}
+
 local function setWeaponPose(setKey)
 	if not AnimDB.IsLayerEnabled("WeaponPose") then
 		if poseTrack then poseTrack:Stop(getLayerFade("WeaponPose")) end
 		poseTrack, poseId = nil, nil
+		if vmPoseTrack then vmPoseTrack:Stop(getLayerFade("WeaponPose")) vmPoseTrack = nil end
 		return
 	end
 
@@ -215,11 +219,15 @@ local function setWeaponPose(setKey)
 		if poseTrack and not poseTrack.IsPlaying then
 			poseTrack:Play(fade, weight, 1)
 		end
+		if vmPoseTrack and not vmPoseTrack.IsPlaying then
+			vmPoseTrack:Play(fade, weight, 1)
+		end
 		return
 	end
 
 	if poseTrack then poseTrack:Stop(fade) end
-	poseTrack, poseId = nil, nil
+	if vmPoseTrack then vmPoseTrack:Stop(fade) end
+	poseTrack, poseId, vmPoseTrack = nil, nil, nil
 	if not id then return end
 
 	local track = getTrack(id, "WeaponPose", true)
@@ -228,6 +236,19 @@ local function setWeaponPose(setKey)
 	track.Priority = AnimDB.GetLayerPriority("WeaponPose")
 	track:Play(fade, weight, 1)
 	poseTrack, poseId = track, id
+	
+	if _G.ViewModelAnimator and setKey then
+		local vmId = AnimDB.GetViewModel(setKey, "Idle")
+		if vmId then
+			local anim = Instance.new("Animation")
+			anim.AnimationId = vmId
+			local vTrack = _G.ViewModelAnimator:LoadAnimation(anim)
+			vTrack.Looped = true
+			vTrack.Priority = AnimDB.GetLayerPriority("WeaponPose")
+			vTrack:Play(fade, weight, 1)
+			vmPoseTrack = vTrack
+		end
+	end
 end
 
 local function playAction(name, speed)
@@ -249,6 +270,25 @@ local function playAction(name, speed)
 	track.Stopped:Once(function()
 		if actionTracks[name] == track then actionTracks[name] = nil end
 	end)
+	
+	if _G.ViewModelAnimator then
+		local vmId = AnimDB.GetViewModel(weaponSet, name)
+		if vmId then
+			local anim = Instance.new("Animation")
+			anim.AnimationId = vmId
+			local vmTrack = _G.ViewModelAnimator:LoadAnimation(anim)
+			if vmActionTracks[name] then vmActionTracks[name]:Stop(fade) end
+			vmTrack.Looped = false
+			vmTrack.Priority = AnimDB.GetLayerPriority(layerName)
+			vmTrack:Play(fade, AnimDB.GetLayerWeight(layerName), speed or 1)
+			vmActionTracks[name] = vmTrack
+			vmTrack.Stopped:Once(function()
+				if vmActionTracks[name] == vmTrack then vmActionTracks[name] = nil end
+				anim:Destroy()
+			end)
+		end
+	end
+
 	return track
 end
 
@@ -257,6 +297,11 @@ local function stopAction(name)
 	if track then
 		track:Stop(getLayerFade("Action"))
 		actionTracks[name] = nil
+	end
+	local vmTrack = vmActionTracks[name]
+	if vmTrack then
+		vmTrack:Stop(getLayerFade("Action"))
+		vmActionTracks[name] = nil
 	end
 end
 
